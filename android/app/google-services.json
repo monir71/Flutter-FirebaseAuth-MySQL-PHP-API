@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "784073988375",
+    "project_id": "nhgarden-ae870",
+    "storage_bucket": "nhgarden-ae870.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:784073988375:android:2c1562dfc7088888f67f52",
+        "android_client_info": {
+          "package_name": "com.example.nhgarden"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9XPvDVjj9vBZ0sCLnEBJjOeb1idOOAuA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

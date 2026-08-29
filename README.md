@@ -1,17 +1,53 @@
 # NH Garden Databse
 
-A new Flutter project.
+PHP API Structure:
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+NHGarden/
+│
+├── android/
+├── ios/
+├── web/
+├── lib/
+│   ├── models/
+│   ├── screens/
+│   ├── services/
+│   └── ...
+│
+├── assets/
+│
+├── api/
+│   ├── config/
+│   │   └── database.php
+│   │
+│   ├── middleware/
+│   │   └── auth_middleware.php
+│   │
+│   ├── add_owner.php
+│   ├── update_owner.php
+│   ├── delete_owner.php
+│   │
+│   ├── add_fund.php
+│   ├── update_fund.php
+│   ├── delete_fund.php
+│   ├── get_funds.php
+│   │
+│   ├── add_expense.php
+│   ├── update_expense.php
+│   ├── delete_expense.php
+│   ├── get_expenses.php
+│   │
+│   ├── add_income.php
+│   ├── update_income.php
+│   ├── delete_income.php
+│   ├── get_incomes.php
+│   │
+│   ├── add_loan.php
+│   ├── update_loan.php
+│   ├── delete_loan.php
+│   ├── get_loans.php
+│   │
+│   └── get_my_dashboard.php
+│
+├── pubspec.yaml
+├── firebase_options.dart
+└── README.md

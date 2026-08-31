@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../models/dashboard_data.dart';
 import '../../services/auth_service.dart';
@@ -82,8 +83,14 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
   // Money Format
   // -------------------------------------------------
 
-  String _money(double amount) {
-    return '৳${amount.toStringAsFixed(2)}';
+  //String _money(double amount) {
+    //return '৳${amount.toStringAsFixed(2)}';
+  //}
+
+  String _money(double value) {
+    final formatter = NumberFormat('#,##0');
+    final formattedValue = formatter.format(value);
+    return '৳ $formattedValue';
   }
 
   // -------------------------------------------------
@@ -94,16 +101,27 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Dashboard'),
+        title: const Text('My Dashboard', style: TextStyle(color: Colors.white,),),
+        backgroundColor: Colors.blue,
+        automaticallyImplyLeading: false,
         actions: [
-          IconButton(icon: const Icon(Icons.logout), onPressed: _logout),
+          IconButton(icon: const Icon(Icons.logout, color: Colors.white,), onPressed: _logout, tooltip: 'Log Out',),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _dashboardData == null
-          ? const Center(child: Text('Dashboard information not found.'))
-          : _buildDashboard(),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        color: Colors.lightBlue,
+        child: Column(
+          children: [
+                _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _dashboardData == null
+                ? const Center(child: Text('Dashboard information not found.'))
+                : Expanded(child: _buildDashboard()),
+          ],
+        ),
+      ),
     );
   }
 
@@ -125,14 +143,14 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
           // -----------------------------------------
           Text(
             'Welcome, ${dashboard.ownerName}',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white,),
           ),
 
           const SizedBox(height: 6),
 
           Text(
             'Owner ID: ${dashboard.ownerId}',
-            style: const TextStyle(fontSize: 15, color: Colors.grey),
+            style: const TextStyle(fontSize: 15, color: Colors.tealAccent,),
           ),
 
           const SizedBox(height: 25),
@@ -142,7 +160,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
           // -----------------------------------------
           const Text(
             'My Gardens',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white,),
           ),
 
           const SizedBox(height: 15),
@@ -217,6 +235,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                   const Icon(
                     Icons.agriculture,
                     size: 28,
+                    color: Colors.tealAccent,
                   ),
 
                   const SizedBox(width: 10),
@@ -229,15 +248,20 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                         fontSize: 21,
                         fontWeight:
                         FontWeight.bold,
+                        color: Colors.blue,
                       ),
                     ),
                   ),
 
                   // Small indication that card is clickable
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey,
+                  const IconButton(
+                    onPressed: null,
+                    icon: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: Colors.tealAccent,
+                    ),
+                    tooltip: 'Show Details',
                   ),
                 ],
               ),
@@ -248,7 +272,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                 'Garden ID: ${garden.gardenId}',
 
                 style: const TextStyle(
-                  color: Colors.grey,
+                  color: Colors.tealAccent,
                 ),
               ),
 
@@ -264,6 +288,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.tealAccent,
                 ),
               ),
 
@@ -325,7 +350,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
 
               const SizedBox(height: 20),
 
-              const Divider(),
+              const Divider(color: Colors.tealAccent,),
 
               const SizedBox(height: 10),
 
@@ -339,6 +364,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.tealAccent,
                 ),
               ),
 

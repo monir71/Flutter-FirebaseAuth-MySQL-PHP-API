@@ -19,6 +19,10 @@ double _toDouble(dynamic value) {
   return double.tryParse(value.toString()) ?? 0.0;
 }
 
+// =======================================================
+// DASHBOARD DATA
+// =======================================================
+
 class DashboardData {
   final int ownerId;
   final String ownerName;
@@ -35,53 +39,64 @@ class DashboardData {
     required this.gardens,
   });
 
-  factory DashboardData.fromJson(
-      Map<String, dynamic> json,
-      ) {
-    final owner =
-    json['owner'] as Map<String, dynamic>;
+  factory DashboardData.fromJson(Map<String, dynamic> json) {
+    final owner = json['owner'] as Map<String, dynamic>;
 
-    final gardens =
-        json['gardens'] as List<dynamic>? ?? [];
+    final gardens = json['gardens'] as List<dynamic>? ?? [];
 
     return DashboardData(
-      ownerId:
-      _toInt(owner['owner_id'].toString()),
+      ownerId: _toInt(owner['owner_id']),
 
-      ownerName:
-      owner['owner_name'].toString(),
+      ownerName: owner['owner_name'].toString(),
 
-      ownerPhoto:
-      owner['owner_photo']?.toString(),
+      ownerPhoto: owner['owner_photo']?.toString(),
 
-      createdAt:
-      owner['created_at'].toString(),
+      createdAt: owner['created_at'].toString(),
 
       gardens: gardens
           .map(
             (garden) =>
-            DashboardGarden.fromJson(
-              garden as Map<String, dynamic>,
-            ),
+            DashboardGarden.fromJson(garden as Map<String, dynamic>),
       )
           .toList(),
     );
   }
 }
 
+// =======================================================
+// DASHBOARD GARDEN
+// =======================================================
 
 class DashboardGarden {
   final int gardenId;
   final String gardenName;
+
+  // -------------------------------------------------------
+  // Garden Owners
+  // -------------------------------------------------------
+
+  final int ownerCount;
+
+  // -------------------------------------------------------
+  // Financial Summary
+  // -------------------------------------------------------
 
   final double fundTotal;
   final double expenseTotal;
   final double incomeTotal;
   final double loanTotal;
 
+  // -------------------------------------------------------
+  // My Transactions
+  // -------------------------------------------------------
+
   final List<Fund> myFunds;
   final List<Expense> myExpenses;
   final List<Income> myIncomes;
+
+  // -------------------------------------------------------
+  // All Transactions
+  // -------------------------------------------------------
 
   final List<Fund> allFunds;
   final List<Expense> allExpenses;
@@ -91,6 +106,7 @@ class DashboardGarden {
   DashboardGarden({
     required this.gardenId,
     required this.gardenName,
+    required this.ownerCount,
     required this.fundTotal,
     required this.expenseTotal,
     required this.incomeTotal,
@@ -104,102 +120,81 @@ class DashboardGarden {
     required this.allLoans,
   });
 
-  factory DashboardGarden.fromJson(
-      Map<String, dynamic> json,
-      ) {
-    final summary =
-        json['summary']
-        as Map<String, dynamic>? ??
-            {};
+  // -------------------------------------------------------
+  // From JSON
+  // -------------------------------------------------------
+
+  factory DashboardGarden.fromJson(Map<String, dynamic> json) {
+    final summary = json['summary'] as Map<String, dynamic>? ?? {};
 
     return DashboardGarden(
-      gardenId:
-      _toInt(json['garden_id'].toString()),
+      // ---------------------------------------------------
+      // Garden Information
+      // ---------------------------------------------------
+      gardenId: _toInt(json['garden_id']),
 
-      gardenName:
-      json['garden_name'].toString(),
+      gardenName: json['garden_name'].toString(),
 
-      fundTotal:
-      _toDouble(
-        summary['fund_total'].toString(),
-      ),
+      ownerCount: _toInt(json['owner_count']),
 
-      expenseTotal:
-      _toDouble(
-        summary['expense_total'].toString(),
-      ),
+      // ---------------------------------------------------
+      // Financial Summary
+      // ---------------------------------------------------
+      fundTotal: _toDouble(summary['fund_total']),
 
-      incomeTotal:
-      _toDouble(
-        summary['income_total'].toString(),
-      ),
+      expenseTotal: _toDouble(summary['expense_total']),
 
-      loanTotal:
-      _toDouble(
-        summary['loan_total'].toString(),
-      ),
+      incomeTotal: _toDouble(summary['income_total']),
 
-      myFunds:
-      (json['my_funds'] as List<dynamic>? ?? [])
-          .map(
-            (item) => Fund.fromJson(
-          item as Map<String, dynamic>,
-        ),
-      )
+      loanTotal: _toDouble(summary['loan_total']),
+
+      // ---------------------------------------------------
+      // My Funds
+      // ---------------------------------------------------
+      myFunds: (json['my_funds'] as List<dynamic>? ?? [])
+          .map((item) => Fund.fromJson(item as Map<String, dynamic>))
           .toList(),
 
-      myExpenses:
-      (json['my_expenses'] as List<dynamic>? ?? [])
-          .map(
-            (item) => Expense.fromJson(
-          item as Map<String, dynamic>,
-        ),
-      )
+      // ---------------------------------------------------
+      // My Expenses
+      // ---------------------------------------------------
+      myExpenses: (json['my_expenses'] as List<dynamic>? ?? [])
+          .map((item) => Expense.fromJson(item as Map<String, dynamic>))
           .toList(),
 
-      myIncomes:
-      (json['my_incomes'] as List<dynamic>? ?? [])
-          .map(
-            (item) => Income.fromJson(
-          item as Map<String, dynamic>,
-        ),
-      )
+      // ---------------------------------------------------
+      // My Income
+      // ---------------------------------------------------
+      myIncomes: (json['my_incomes'] as List<dynamic>? ?? [])
+          .map((item) => Income.fromJson(item as Map<String, dynamic>))
           .toList(),
 
-      allFunds:
-      (json['all_funds'] as List<dynamic>? ?? [])
-          .map(
-            (item) => Fund.fromJson(
-          item as Map<String, dynamic>,
-        ),
-      )
+      // ---------------------------------------------------
+      // All Funds
+      // ---------------------------------------------------
+      allFunds: (json['all_funds'] as List<dynamic>? ?? [])
+          .map((item) => Fund.fromJson(item as Map<String, dynamic>))
           .toList(),
 
-      allExpenses:
-      (json['all_expenses'] as List<dynamic>? ?? [])
-          .map(
-            (item) => Expense.fromJson(
-          item as Map<String, dynamic>,
-        ),
-      )
+      // ---------------------------------------------------
+      // All Expenses
+      // ---------------------------------------------------
+      allExpenses: (json['all_expenses'] as List<dynamic>? ?? [])
+          .map((item) => Expense.fromJson(item as Map<String, dynamic>))
           .toList(),
 
-      allIncomes:
-      (json['all_incomes'] as List<dynamic>? ?? [])
-          .map(
-            (item) => Income.fromJson(
-          item as Map<String, dynamic>,
-        ),
-      )
+      // ---------------------------------------------------
+      // All Income
+      // ---------------------------------------------------
+      allIncomes: (json['all_incomes'] as List<dynamic>? ?? [])
+          .map((item) => Income.fromJson(item as Map<String, dynamic>))
           .toList(),
 
-      allLoans:
-      (json['all_loans'] as List<dynamic>? ?? [])
-          .map(
-            (item) => Loan.fromJson(
-          item as Map<String, dynamic>,
-        ),
-      )
+      // ---------------------------------------------------
+      // All Loans
+      // ---------------------------------------------------
+      allLoans: (json['all_loans'] as List<dynamic>? ?? [])
+          .map((item) => Loan.fromJson(item as Map<String, dynamic>))
           .toList(),
     );
   }

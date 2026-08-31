@@ -10,62 +10,80 @@ class StartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NH Garden'),
+        title: const Text('North Hunter Database',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+        ),
+        backgroundColor: Colors.blue,
+        leading: Image(image: AssetImage('assets/images/logo.png')),
       ),
 
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        color: Colors.lightBlue,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
 
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
 
-            children: [
+              children: [
 
-              const Text(
-                'Welcome to NH Garden',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                const CircleAvatar(
+                  backgroundImage: AssetImage('assets/images/logo.png'),
+                  radius: 100,
                 ),
-              ),
 
-              const SizedBox(height: 40),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                        const LoginScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('LOGIN'),
+                const Text(
+                  'Welcome to North Hunter Database',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 40),
 
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                        const RegisterScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('REGISTER'),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const LoginScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('LOGIN'),
+                  ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 16),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const RegisterScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('REGISTER'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

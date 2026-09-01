@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nhgarden/screens/admin/admin_profit_management_screen.dart';
 import 'package:nhgarden/screens/admin/income_management_screen.dart';
+import 'package:nhgarden/screens/general/profit_management_screen.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/owner_service.dart';
@@ -426,6 +428,62 @@ class AdminDashboardScreen extends StatelessWidget {
                       const SizedBox(height: 10), // Space between button and description
                       const Text(
                         'Here you can add new loan and also see loan list.',
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                margin: const EdgeInsets.all(10.0),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start, // Align left
+                    children: [
+                      const Text(
+                        'Profit Management',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10), // Space between title and button
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdminProfitManagementScreen(),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(Icons.settings, size: 24),
+                            SizedBox(width: 8),
+                            Text(
+                              'Profit Management',
+                              style: TextStyle(fontSize: 20.0),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10), // Space between button and description
+                      const Text(
+                        'Here you can approve profit withdraw and see all transactions.',
                         style: TextStyle(
                           fontSize: 15.0,
                           color: Colors.black54,

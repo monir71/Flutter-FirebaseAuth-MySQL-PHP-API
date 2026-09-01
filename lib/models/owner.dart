@@ -1,24 +1,28 @@
 class Owner {
   final int ownerId;
   final String ownerName;
+  final int? userId;
   final List<OwnerGarden> gardens;
 
   Owner({
     required this.ownerId,
     required this.ownerName,
+    required this.userId,
     required this.gardens,
   });
 
   factory Owner.fromJson(Map<String, dynamic> json) {
     return Owner(
       ownerId: int.parse(json['owner_id'].toString()),
+
       ownerName: json['owner_name'].toString(),
+
+      userId: json['user_id'] == null
+          ? null
+          : int.parse(json['user_id'].toString()),
+
       gardens: (json['gardens'] as List<dynamic>? ?? [])
-          .map(
-            (garden) => OwnerGarden.fromJson(
-          garden as Map<String, dynamic>,
-        ),
-      )
+          .map((garden) => OwnerGarden.fromJson(garden as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -28,10 +32,7 @@ class OwnerGarden {
   final int gardenId;
   final String gardenName;
 
-  OwnerGarden({
-    required this.gardenId,
-    required this.gardenName,
-  });
+  OwnerGarden({required this.gardenId, required this.gardenName});
 
   factory OwnerGarden.fromJson(Map<String, dynamic> json) {
     return OwnerGarden(

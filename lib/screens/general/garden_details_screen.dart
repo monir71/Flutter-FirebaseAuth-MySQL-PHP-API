@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:nhgarden/screens/general/profit_management_screen.dart';
 
 import '../../models/dashboard_data.dart';
 
@@ -99,11 +100,39 @@ class GardenDetailsScreen extends StatelessWidget {
           ),
 
           _summaryRow(
-            'Total Loan',
+            'Total Loan Received (Paid/Not Paid)',
             garden.loanTotal,
           ),
 
           const SizedBox(height: 25),
+
+          // -------------------------------------------------
+          // Profit Management
+          // -------------------------------------------------
+
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProfitManagementScreen(
+                    garden: garden,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.account_balance_wallet,
+            ),
+            label: const Text(
+              'Profit Management',
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+            ),
+          ),
+
+          const SizedBox(height: 20,),
 
           // -------------------------------------------------
           // MY FUNDS
@@ -211,7 +240,7 @@ class GardenDetailsScreen extends StatelessWidget {
           // ALL LOANS
           // -------------------------------------------------
 
-          _sectionTitle('ALL LOANS'),
+          _sectionTitle('ALL LOAN Received (Paid/Not Paid)'),
 
           ...garden.allLoans.map(
                 (loan) => _loanCard(loan),

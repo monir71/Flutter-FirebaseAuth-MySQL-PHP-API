@@ -187,8 +187,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
     // ---------------------------------------------
 
     final profitLoss =
-        garden.incomeTotal -
-            (garden.fundTotal + garden.loanTotal);
+        garden.incomeTotal - garden.expenseTotal;
 
     final moneyAtHand =
         (garden.fundTotal +
@@ -386,7 +385,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               ),
 
               _buildSummaryRow(
-                'Total Loan',
+                'Total Loan Received (Paid/Not Paid)',
                 garden.loanTotal,
               ),
             ],

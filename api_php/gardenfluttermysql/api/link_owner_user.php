@@ -1,298 +1,85 @@
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
-require __DIR__ . '/config/database.php';
-
-use Kreait\Firebase\Factory;
-
 header('Content-Type: application/json');
+
+require_once __DIR__ . '/middleware/auth_middleware.php';
 
 try {
 
-    // -------------------------------------------------
-    // Firebase Admin SDK
-    // -------------------------------------------------
+    requireAdmin();
 
-    $factory = (new Factory)
-        ->withServiceAccount(
-            'C:/xampp/firebase_credentials/nhgarden-ae870-firebase-adminsdk-fbsvc-8fc3c3fb7c.json'
-        );
-
-    $auth = $factory->createAuth();
-
-
-    // -------------------------------------------------
-    // Get Authorization header
-    // -------------------------------------------------
-
-    $authorizationHeader = '';
-
-    if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
-        $authorizationHeader = $_SERVER['HTTP_AUTHORIZATION'];
-    }
-
-    if (
-        empty($authorizationHeader) &&
-        function_exists('getallheaders')
-    ) {
-
-        $headers = getallheaders();
-
-        if (!empty($headers['Authorization'])) {
-            $authorizationHeader = $headers['Authorization'];
-        }
-
-        if (
-            empty($authorizationHeader) &&
-            !empty($headers['authorization'])
-        ) {
-            $authorizationHeader = $headers['authorization'];
-        }
-    }
-
-
-    // -------------------------------------------------
-    // Check Authorization header
-    // -------------------------------------------------
-
-    if (empty($authorizationHeader)) {
-
-        http_response_code(401);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Authorization header is missing.'
-        ]);
-
-        exit;
-    }
-
-
-    // -------------------------------------------------
-    // Extract Bearer token
-    // -------------------------------------------------
-
-    if (!preg_match(
-        '/Bearer\s+(.+)$/i',
-        $authorizationHeader,
-        $matches
-    )) {
-
-        http_response_code(401);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid Authorization header format.'
-        ]);
-
-        exit;
-    }
-
-    $idToken = trim($matches[1]);
-
-
-    // -------------------------------------------------
-    // Verify Firebase ID token
-    // -------------------------------------------------
-
-    $verifiedIdToken = $auth->verifyIdToken($idToken);
-
-
-    // -------------------------------------------------
-    // Get Firebase UID
-    // -------------------------------------------------
-
-    $firebaseUid = $verifiedIdToken->claims()->get('sub');
-
-    if (empty($firebaseUid)) {
-
-        http_response_code(401);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Firebase UID not found.'
-        ]);
-
-        exit;
-    }
-
-
-    // -------------------------------------------------
-    // Find logged-in MySQL user
-    // -------------------------------------------------
-
-    $sql = "
-        SELECT id, username, email, role
-        FROM users
-        WHERE firebase_uid = :firebase_uid
-        LIMIT 1
-    ";
-
-    $stmt = $conn->prepare($sql);
-
-    $stmt->execute([
-        ':firebase_uid' => $firebaseUid
-    ]);
-
-    $admin = $stmt->fetch();
-
-
-    if (!$admin) {
-
-        http_response_code(404);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Logged-in user not found in MySQL database.'
-        ]);
-
-        exit;
-    }
-
-
-    // -------------------------------------------------
-    // Admin-only operation
-    // -------------------------------------------------
-
-    if ($admin['role'] !== 'admin') {
-
-        http_response_code(403);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Only admin users can link owners to users.'
-        ]);
-
-        exit;
-    }
-
-
-    // -------------------------------------------------
-    // Read JSON body
-    // -------------------------------------------------
+    $conn = $GLOBALS['conn'];
 
     $input = json_decode(
         file_get_contents('php://input'),
         true
     );
 
+    $ownerId = isset($input['owner_id'])
+        ? (int) $input['owner_id']
+        : 0;
 
-    if (!is_array($input)) {
+    $userId = isset($input['user_id'])
+        ? (int) $input['user_id']
+        : 0;
+
+    if ($ownerId <= 0 || $userId <= 0) {
 
         http_response_code(400);
 
         echo json_encode([
             'success' => false,
-            'message' => 'Invalid JSON request body.'
+            'message' => 'Owner ID and User ID are required.',
         ]);
 
         exit;
     }
 
+    /*
+     * Verify owner exists.
+     */
 
-    // -------------------------------------------------
-    // Validate owner_id
-    // -------------------------------------------------
+    $stmtOwner = $conn->prepare(
+        'SELECT owner_id
+         FROM owners
+         WHERE owner_id = ?'
+    );
 
-    if (
-        !isset($input['owner_id']) ||
-        !is_numeric($input['owner_id'])
-    ) {
-
-        http_response_code(422);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'owner_id is required.'
-        ]);
-
-        exit;
-    }
-
-
-    // -------------------------------------------------
-    // Validate user_id
-    // -------------------------------------------------
-
-    if (
-        !isset($input['user_id']) ||
-        !is_numeric($input['user_id'])
-    ) {
-
-        http_response_code(422);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'user_id is required.'
-        ]);
-
-        exit;
-    }
-
-
-    $ownerId = (int)$input['owner_id'];
-    $userId = (int)$input['user_id'];
-
-
-    // -------------------------------------------------
-    // Find owner
-    // -------------------------------------------------
-
-    $sql = "
-        SELECT
-            owner_id,
-            owner_name,
-            user_id
-        FROM owners
-        WHERE owner_id = :owner_id
-        LIMIT 1
-    ";
-
-    $stmt = $conn->prepare($sql);
-
-    $stmt->execute([
-        ':owner_id' => $ownerId
+    $stmtOwner->execute([
+        $ownerId
     ]);
 
-    $owner = $stmt->fetch();
-
-
-    if (!$owner) {
+    if (!$stmtOwner->fetch()) {
 
         http_response_code(404);
 
         echo json_encode([
             'success' => false,
-            'message' => 'Owner not found.'
+            'message' => 'Owner not found.',
         ]);
 
         exit;
     }
 
+    /*
+     * Verify user exists and is a general user.
+     */
 
-    // -------------------------------------------------
-    // Find user
-    // -------------------------------------------------
-
-    $sql = "
-        SELECT
+    $stmtUser = $conn->prepare(
+        'SELECT
             id,
             username,
             email,
             role
-        FROM users
-        WHERE id = :user_id
-        LIMIT 1
-    ";
+         FROM users
+         WHERE id = ?'
+    );
 
-    $stmt = $conn->prepare($sql);
-
-    $stmt->execute([
-        ':user_id' => $userId
+    $stmtUser->execute([
+        $userId
     ]);
 
-    $user = $stmt->fetch();
-
+    $user = $stmtUser->fetch();
 
     if (!$user) {
 
@@ -300,149 +87,108 @@ try {
 
         echo json_encode([
             'success' => false,
-            'message' => 'User not found.'
+            'message' => 'User not found.',
         ]);
 
         exit;
     }
-
-
-    // -------------------------------------------------
-    // User must be general
-    // -------------------------------------------------
 
     if ($user['role'] !== 'general') {
 
-        http_response_code(422);
+        http_response_code(400);
 
         echo json_encode([
             'success' => false,
-            'message' => 'Only general users can be linked to an owner.'
+            'message' => 'Only general users can be linked to an owner.',
         ]);
 
         exit;
     }
 
+    /*
+     * Check whether this user is already linked
+     * to another owner.
+     */
 
-    // -------------------------------------------------
-    // Check whether this user is already linked
-    // -------------------------------------------------
-
-    $sql = "
-        SELECT
+    $stmtExisting = $conn->prepare(
+        'SELECT
             owner_id,
             owner_name
-        FROM owners
-        WHERE user_id = :user_id
-        LIMIT 1
-    ";
+         FROM owners
+         WHERE user_id = ?'
+    );
 
-    $stmt = $conn->prepare($sql);
-
-    $stmt->execute([
-        ':user_id' => $userId
+    $stmtExisting->execute([
+        $userId
     ]);
 
-    $existingOwner = $stmt->fetch();
-
+    $existingOwner = $stmtExisting->fetch();
 
     if ($existingOwner) {
 
-        // If the user is already linked to this owner
-        if ((int)$existingOwner['owner_id'] === $ownerId) {
-
-            http_response_code(409);
-
-            echo json_encode([
-                'success' => false,
-                'message' => 'This owner is already linked to this user.'
-            ]);
-
-            exit;
-        }
-
-
-        // User belongs to another owner
         http_response_code(409);
 
         echo json_encode([
             'success' => false,
-            'message' => 'This user is already linked to another owner.',
-            'data' => [
-                'owner_id' => (int)$existingOwner['owner_id'],
-                'owner_name' => $existingOwner['owner_name']
-            ]
+            'message' =>
+                'This user is already linked to owner: '
+                . $existingOwner['owner_name'],
         ]);
 
         exit;
     }
 
+    /*
+     * Link user to owner.
+     */
 
-    // -------------------------------------------------
-    // Check whether owner is already linked
-    // -------------------------------------------------
+    $stmtUpdate = $conn->prepare(
+        'UPDATE owners
+         SET user_id = ?
+         WHERE owner_id = ?'
+    );
 
-    if (!empty($owner['user_id'])) {
-
-        http_response_code(409);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'This owner is already linked to a user.',
-            'data' => [
-                'owner_id' => (int)$owner['owner_id'],
-                'owner_name' => $owner['owner_name'],
-                'user_id' => (int)$owner['user_id']
-            ]
-        ]);
-
-        exit;
-    }
-
-
-    // -------------------------------------------------
-    // Link owner with user
-    // -------------------------------------------------
-
-    $sql = "
-        UPDATE owners
-        SET user_id = :user_id
-        WHERE owner_id = :owner_id
-    ";
-
-    $stmt = $conn->prepare($sql);
-
-    $stmt->execute([
-        ':user_id' => $userId,
-        ':owner_id' => $ownerId
+    $stmtUpdate->execute([
+        $userId,
+        $ownerId
     ]);
 
+    /*
+     * Return updated owner information.
+     */
 
-    // -------------------------------------------------
-    // Success
-    // -------------------------------------------------
+    $stmtResult = $conn->prepare(
+        'SELECT
+            o.owner_id,
+            o.owner_name,
+            o.user_id,
+            u.username,
+            u.email
+         FROM owners o
+         LEFT JOIN users u
+            ON o.user_id = u.id
+         WHERE o.owner_id = ?'
+    );
 
-    http_response_code(200);
+    $stmtResult->execute([
+        $ownerId
+    ]);
+
+    $owner = $stmtResult->fetch();
 
     echo json_encode([
         'success' => true,
-        'message' => 'Owner linked to user successfully.',
-        'data' => [
-            'owner_id' => (int)$owner['owner_id'],
-            'owner_name' => $owner['owner_name'],
-            'user_id' => (int)$user['id'],
-            'username' => $user['username'],
-            'email' => $user['email']
-        ]
+        'message' => 'User linked to owner successfully.',
+        'data' => $owner,
     ]);
 
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
 
     http_response_code(500);
 
     echo json_encode([
         'success' => false,
         'message' => 'Server error.',
-        'error' => $e->getMessage()
+        'error' => $e->getMessage(),
     ]);
 }

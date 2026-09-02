@@ -198,4 +198,29 @@ ON DELETE SET NULL;
 ALTER TABLE owners
 ADD UNIQUE KEY unique_owner_user (user_id);
 
+CREATE TABLE profit_transactions (
+    profit_transaction_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+    owner_id INT UNSIGNED NOT NULL,
+    garden_id INT UNSIGNED NOT NULL,
+
+    profit_amount DECIMAL(12,2) NOT NULL,
+    profit_date DATE NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (profit_transaction_id),
+
+    INDEX idx_profit_transactions_owner (owner_id),
+    INDEX idx_profit_transactions_garden (garden_id),
+    INDEX idx_profit_transactions_date (profit_date),
+
+    CONSTRAINT fk_profit_transactions_garden_owner
+        FOREIGN KEY (garden_id, owner_id)
+        REFERENCES garden_owners(garden_id, owner_id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+
+) ENGINE=InnoDB;
+
 

@@ -98,21 +98,36 @@ try {
 
 
     // -------------------------------------------------
-    // Get owners and their gardens
+    // Get owners, linked users and their gardens
     // -------------------------------------------------
 
     $sql = "
         SELECT
             o.owner_id,
             o.owner_name,
+
+            o.user_id,
+
+            u.username,
+            u.email,
+
             g.garden_id,
             g.garden_name
+
         FROM owners o
+
+        LEFT JOIN users u
+            ON o.user_id = u.id
+
         LEFT JOIN garden_owners go
             ON o.owner_id = go.owner_id
+
         LEFT JOIN gardens g
             ON go.garden_id = g.garden_id
-        ORDER BY o.owner_id ASC, g.garden_id ASC
+
+        ORDER BY
+            o.owner_id ASC,
+            g.garden_id ASC
     ";
 
     $stmt = $conn->prepare($sql);
@@ -136,6 +151,23 @@ try {
             $owners[$ownerId] = [
                 'owner_id' => $ownerId,
                 'owner_name' => $row['owner_name'],
+
+                // -------------------------------------
+                // Linked user information
+                // -------------------------------------
+
+                'user_id' => $row['user_id'] !== null
+                    ? (int) $row['user_id']
+                    : null,
+
+                'username' => $row['username'] !== null
+                    ? $row['username']
+                    : null,
+
+                'email' => $row['email'] !== null
+                    ? $row['email']
+                    : null,
+
                 'gardens' => []
             ];
         }

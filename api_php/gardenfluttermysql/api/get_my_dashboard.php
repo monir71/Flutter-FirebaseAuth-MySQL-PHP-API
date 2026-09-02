@@ -111,6 +111,23 @@ try {
 
 
         // =================================================
+        // OWNER COUNT
+        // =================================================
+
+        $stmt = $conn->prepare(
+            'SELECT COUNT(*)
+             FROM garden_owners
+             WHERE garden_id = :garden_id'
+        );
+
+        $stmt->execute([
+            ':garden_id' => $gardenId,
+        ]);
+
+        $ownerCount = (int) $stmt->fetchColumn();
+
+
+        // =================================================
         // SUMMARY
         // =================================================
 
@@ -414,7 +431,7 @@ try {
 
 
         // =================================================
-        // Build Garden Dashboard
+        // BUILD GARDEN DASHBOARD
         // =================================================
 
         $dashboardGardens[] = [
@@ -424,6 +441,9 @@ try {
 
             'garden_name' =>
                 $garden['garden_name'],
+
+            'owner_count' =>
+                $ownerCount,
 
 
             // -------------------------------------------------

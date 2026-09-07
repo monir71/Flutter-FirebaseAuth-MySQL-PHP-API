@@ -105,6 +105,7 @@ try {
         SELECT
             o.owner_id,
             o.owner_name,
+			o.owner_photo,
 
             o.user_id,
 
@@ -151,6 +152,7 @@ try {
             $owners[$ownerId] = [
                 'owner_id' => $ownerId,
                 'owner_name' => $row['owner_name'],
+				'owner_photo' => $row['owner_photo'],
 
                 // -------------------------------------
                 // Linked user information

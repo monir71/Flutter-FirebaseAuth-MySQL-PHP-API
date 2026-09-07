@@ -128,6 +128,33 @@ try {
 
 
         // =================================================
+        // GARDEN OWNERS
+        // =================================================
+
+        $stmt = $conn->prepare(
+            'SELECT
+                o.owner_id,
+                o.owner_name,
+                o.owner_photo
+
+             FROM garden_owners go
+
+             INNER JOIN owners o
+                ON go.owner_id = o.owner_id
+
+             WHERE go.garden_id = :garden_id
+
+             ORDER BY o.owner_name ASC'
+        );
+
+        $stmt->execute([
+            ':garden_id' => $gardenId,
+        ]);
+
+        $gardenOwners = $stmt->fetchAll();
+
+
+        // =================================================
         // SUMMARY
         // =================================================
 
@@ -444,6 +471,13 @@ try {
 
             'owner_count' =>
                 $ownerCount,
+
+            // -------------------------------------------------
+            // Garden Owners
+            // -------------------------------------------------
+
+            'owners' =>
+                $gardenOwners,
 
 
             // -------------------------------------------------

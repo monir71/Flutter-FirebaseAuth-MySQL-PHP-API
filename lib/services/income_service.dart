@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-
 import '../models/income.dart';
 
 class IncomeService {
@@ -53,13 +51,13 @@ class IncomeService {
       },
     );
 
-    print(
-      'PHP Status: ${response.statusCode}',
-    );
+    //print(
+      //'PHP Status: ${response.statusCode}',
+    //);
 
-    print(
-      'PHP Response: ${response.body}',
-    );
+    //print(
+      //'PHP Response: ${response.body}',
+    //);
 
     final responseData =
     jsonDecode(response.body);
@@ -116,13 +114,13 @@ class IncomeService {
       }),
     );
 
-    print(
-      'PHP Status: ${response.statusCode}',
-    );
+    //print(
+      //'PHP Status: ${response.statusCode}',
+    //);
 
-    print(
-      'PHP Response: ${response.body}',
-    );
+    //print(
+      //'PHP Response: ${response.body}',
+    //);
 
     final responseData =
     jsonDecode(response.body);
@@ -177,13 +175,13 @@ class IncomeService {
       }),
     );
 
-    print(
-      'PHP Status: ${response.statusCode}',
-    );
+    //print(
+      //'PHP Status: ${response.statusCode}',
+    //);
 
-    print(
-      'PHP Response: ${response.body}',
-    );
+    //print(
+      //'PHP Response: ${response.body}',
+    //);
 
     final responseData =
     jsonDecode(response.body);
@@ -228,13 +226,13 @@ class IncomeService {
       }),
     );
 
-    print(
-      'PHP Status: ${response.statusCode}',
-    );
+    //print(
+      //'PHP Status: ${response.statusCode}',
+    //);
 
-    print(
-      'PHP Response: ${response.body}',
-    );
+    //print(
+      //'PHP Response: ${response.body}',
+    //);
 
     final responseData =
     jsonDecode(response.body);

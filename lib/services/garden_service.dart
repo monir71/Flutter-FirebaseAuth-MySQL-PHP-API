@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-
 import '../models/garden.dart';
 
 class GardenService {
@@ -44,8 +42,8 @@ class GardenService {
       },
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -88,8 +86,8 @@ class GardenService {
       }),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -133,8 +131,8 @@ class GardenService {
       }),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -175,8 +173,8 @@ class GardenService {
       }),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 

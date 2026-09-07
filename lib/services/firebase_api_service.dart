@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 
 class FirebaseApiService {
@@ -24,8 +23,8 @@ class FirebaseApiService {
       }),
     );
 
-    print("HTTP Status: ${response.statusCode}");
-    print("API Response: ${response.body}");
+    //print("HTTP Status: ${response.statusCode}");
+    //print("API Response: ${response.body}");
 
     if(response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(

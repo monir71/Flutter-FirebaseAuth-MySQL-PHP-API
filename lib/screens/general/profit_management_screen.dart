@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../../models/dashboard_data.dart';
 import '../../models/profit_transaction.dart';
 import '../../services/profit_service.dart';
@@ -29,9 +28,9 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
     _loadData();
   }
 
-  // -------------------------------------------------
-  // Money Format
-  // -------------------------------------------------
+  // =====================================================
+  // MONEY FORMAT
+  // =====================================================
 
   String _money(double value) {
     final formatter = NumberFormat('#,##0');
@@ -39,9 +38,9 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
     return '৳ ${formatter.format(value)}';
   }
 
-  // -------------------------------------------------
-  // Load Data
-  // -------------------------------------------------
+  // =====================================================
+  // LOAD DATA
+  // =====================================================
 
   Future<void> _loadData() async {
     try {
@@ -49,49 +48,45 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
         gardenId: widget.garden.gardenId,
       );
 
-      final allTransactions =
-      await ProfitService.getMyProfits();
+      final allTransactions = await ProfitService.getMyProfits();
 
-      print('==============================');
-      print('MY PROFIT TRANSACTIONS');
-      print('Count: ${allTransactions.length}');
+      //print('==============================');
+      //print('MY PROFIT TRANSACTIONS');
+      //print('Count: ${allTransactions.length}');
 
       for (final transaction in allTransactions) {
-        print(
-          'ID: ${transaction.profitTransactionId} | '
-              'Owner: ${transaction.ownerId} | '
-              'Garden: ${transaction.gardenId} | '
-              'Amount: ${transaction.profitAmount} | '
-              'Status: ${transaction.status}',
-        );
+        //print(
+          //'ID: ${transaction.profitTransactionId} | '
+          //'Owner: ${transaction.ownerId} | '
+          //'Garden: ${transaction.gardenId} | '
+          //'Amount: ${transaction.profitAmount} | '
+          //'Status: ${transaction.status}',
+        //);
       }
 
-      print('Current garden ID: ${widget.garden.gardenId}');
-      print('==============================');
+      //print('Current garden ID: ${widget.garden.gardenId}');
+      //print('==============================');
 
       if (!mounted) return;
 
       final gardenTransactions = allTransactions
           .where(
-            (transaction) =>
-        transaction.gardenId ==
-            widget.garden.gardenId,
-      )
+            (transaction) => transaction.gardenId == widget.garden.gardenId,
+          )
           .toList();
 
-      print(
-        'Transactions for current garden: '
-            '${gardenTransactions.length}',
-      );
+      //print(
+        //'Transactions for current garden: '
+        //'${gardenTransactions.length}',
+      //);
 
       setState(() {
         _summary = summary;
         _transactions = gardenTransactions;
         _isLoading = false;
       });
-
     } catch (e) {
-      print('PROFIT LOAD ERROR: $e');
+      //print('PROFIT LOAD ERROR: $e');
 
       if (!mounted) return;
 
@@ -101,17 +96,21 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Unable to load profit information: $e',
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          backgroundColor: Colors.red.shade700,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
+          content: Text('Unable to load profit information: $e'),
         ),
       );
     }
   }
 
-  // -------------------------------------------------
-  // Request Profit Withdrawal
-  // -------------------------------------------------
+  // =====================================================
+  // REQUEST PROFIT WITHDRAWAL
+  // =====================================================
 
   Future<void> _requestProfit() async {
     final summary = _summary;
@@ -125,8 +124,16 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
 
     if (availableProfit <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No profit is currently available for withdrawal.'),
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Colors.orange.shade700,
+          content: const Text(
+            'No profit is currently available for withdrawal.',
+          ),
         ),
       );
 
@@ -141,53 +148,146 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Withdraw Profit'),
-
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(22, 20, 22, 8),
+          contentPadding: const EdgeInsets.fromLTRB(22, 8, 22, 4),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.account_balance_wallet_rounded,
+                  color: Colors.green.shade700,
+                  size: 21,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Withdraw Profit',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Available profit: '
-                '${_money(availableProfit)}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              // Available profit
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green.shade100),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.savings_rounded,
+                      color: Colors.green.shade700,
+                      size: 21,
+                    ),
+                    const SizedBox(width: 9),
+                    Expanded(
+                      child: Text(
+                        'Available Profit',
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      _money(availableProfit),
+                      style: TextStyle(
+                        color: Colors.green.shade700,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               TextField(
                 controller: amountController,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Profit Amount',
                   prefixText: '৳ ',
-                  border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.payments_rounded),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.green.shade600,
+                      width: 1.5,
+                    ),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 12),
 
               TextField(
                 controller: noteController,
                 maxLines: 2,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Note (Optional)',
-                  border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.notes_rounded),
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.green.shade600,
+                      width: 1.5,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
               },
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
                 final enteredAmount = double.tryParse(
                   amountController.text.trim(),
@@ -216,7 +316,20 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
 
                 Navigator.pop(dialogContext, enteredAmount);
               },
-              child: const Text('Request'),
+              icon: const Icon(Icons.send_rounded, size: 17),
+              label: const Text('Request'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade700,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 11,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
           ],
         );
@@ -238,9 +351,9 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
     );
   }
 
-  // -------------------------------------------------
-  // Create Profit Request
-  // -------------------------------------------------
+  // =====================================================
+  // CREATE PROFIT REQUEST
+  // =====================================================
 
   Future<void> _createProfitRequest({
     required double amount,
@@ -263,8 +376,14 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Colors.green.shade700,
+          content: const Text(
             'Profit withdrawal request submitted. '
             'Waiting for admin approval.',
           ),
@@ -275,9 +394,17 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Unable to submit request: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Colors.red.shade700,
+          content: Text('Unable to submit request: $e'),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -287,35 +414,71 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
     }
   }
 
-  // -------------------------------------------------
-  // Cancel Request
-  // -------------------------------------------------
+  // =====================================================
+  // CANCEL REQUEST
+  // =====================================================
 
   Future<void> _cancelTransaction(ProfitTransaction transaction) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Cancel Request'),
-
-          content: Text(
-            'Cancel the profit withdrawal '
-            'request of '
-            '${_money(transaction.profitAmount)}?',
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
           ),
-
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.red.shade700,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Cancel Request',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Cancel the profit withdrawal request of '
+            '${_money(transaction.profitAmount)}?',
+            style: TextStyle(color: Colors.grey.shade700, height: 1.4),
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext, false);
               },
-              child: const Text('No'),
+              child: Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext, true);
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade700,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               child: const Text('Yes, Cancel'),
             ),
           ],
@@ -335,22 +498,38 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profit withdrawal request cancelled.')),
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Colors.green.shade700,
+          content: const Text('Profit withdrawal request cancelled.'),
+        ),
       );
 
       await _loadData();
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Unable to cancel request: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Colors.red.shade700,
+          content: Text('Unable to cancel request: $e'),
+        ),
+      );
     }
   }
 
-  // -------------------------------------------------
-  // Status Color
-  // -------------------------------------------------
+  // =====================================================
+  // STATUS COLOR
+  // =====================================================
 
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
@@ -368,9 +547,29 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
     }
   }
 
-  // -------------------------------------------------
-  // Status Text
-  // -------------------------------------------------
+  // =====================================================
+  // STATUS ICON
+  // =====================================================
+
+  IconData _statusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return Icons.check_circle_rounded;
+
+      case 'rejected':
+        return Icons.cancel_rounded;
+
+      case 'pending':
+        return Icons.hourglass_top_rounded;
+
+      default:
+        return Icons.info_rounded;
+    }
+  }
+
+  // =====================================================
+  // STATUS TEXT
+  // =====================================================
 
   String _statusText(String status) {
     switch (status.toLowerCase()) {
@@ -388,38 +587,67 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
     }
   }
 
-  // -------------------------------------------------
-  // Summary Card
-  // -------------------------------------------------
+  // =====================================================
+  // SUMMARY CARD
+  // =====================================================
 
   Widget _buildSummaryCard() {
     final summary = _summary;
 
-    // Safety check.
-    // Never use _summary! here.
     if (summary == null) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const Icon(Icons.error_outline, size: 40, color: Colors.red),
-
-              const SizedBox(height: 10),
-
-              const Text(
-                'Profit information is unavailable.',
-                textAlign: TextAlign.center,
+      return Container(
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.red.shade100),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.035),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                shape: BoxShape.circle,
               ),
-
-              const SizedBox(height: 12),
-
-              ElevatedButton(
-                onPressed: _loadData,
-                child: const Text('Try Again'),
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: 34,
+                color: Colors.red.shade600,
               ),
-            ],
-          ),
+            ),
+
+            const SizedBox(height: 12),
+
+            const Text(
+              'Profit information is unavailable.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+
+            const SizedBox(height: 14),
+
+            ElevatedButton.icon(
+              onPressed: _loadData,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Try Again'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade700,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -448,111 +676,150 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
     final myAvailableProfit =
         double.tryParse(summary['my_available_profit']?.toString() ?? '0') ?? 0;
 
-    return Card(
-      elevation: 4,
-
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          children: [
-            Text(
-              widget.garden.gardenName,
-              style: const TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-
-            const SizedBox(height: 5),
-
-            Text(
-              'Owners: $ownerCount',
-              style: const TextStyle(color: Colors.grey),
-            ),
-
-            const SizedBox(height: 18),
-
-            _buildAmountRow('Total Income', totalIncome),
-
-            _buildAmountRow('Total Expense', totalExpense),
-
-            const Divider(),
-
-            _buildAmountRow(
-              'Available Garden Profit',
-              availableProfit,
-              valueColor: Colors.green,
-            ),
-
-            _buildAmountRow(
-              'My Equal Profit Share',
-              equalShare,
-              valueColor: Colors.blue,
-            ),
-
-            _buildAmountRow(
-              'My Approved Profit',
-              myApprovedProfit,
-              valueColor: Colors.green,
-            ),
-
-            _buildAmountRow(
-              'My Pending Profit',
-              myPendingProfit,
-              valueColor: Colors.orange,
-            ),
-
-            const Divider(),
-
-            _buildAmountRow(
-              'My Available Profit',
-              myAvailableProfit,
-              valueColor: myAvailableProfit > 0 ? Colors.green : Colors.red,
-              bold: true,
-            ),
-          ],
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.blue.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.045),
+            blurRadius: 9,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-    );
-  }
-
-  // -------------------------------------------------
-  // Amount Row
-  // -------------------------------------------------
-
-  Widget _buildAmountRow(
-    String label,
-    double amount, {
-    Color? valueColor,
-    bool bold = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+          // -------------------------------------------------
+          // HEADER
+          // -------------------------------------------------
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blue.shade700, Colors.lightBlue.shade500],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(18),
+                topRight: Radius.circular(18),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.pie_chart_rounded,
+                    color: Colors.white,
+                    size: 23,
+                  ),
+                ),
+
+                const SizedBox(width: 11),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.garden.gardenName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 3),
+
+                      Text(
+                        'Profit Overview • $ownerCount Owners',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.78),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
 
-          Text(
-            _money(amount),
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: valueColor,
+          // -------------------------------------------------
+          // FINANCIAL FIGURES
+          // -------------------------------------------------
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              children: [
+                _buildAmountTile(
+                  'Total Income',
+                  totalIncome,
+                  Icons.trending_up_rounded,
+                  Colors.green.shade700,
+                ),
+
+                _buildAmountTile(
+                  'Total Expense',
+                  totalExpense,
+                  Icons.receipt_long_rounded,
+                  Colors.deepOrange.shade600,
+                ),
+
+                const SizedBox(height: 4),
+
+                _buildAmountTile(
+                  'Available Garden Profit',
+                  availableProfit,
+                  Icons.account_balance_wallet_rounded,
+                  Colors.green.shade700,
+                  highlighted: true,
+                ),
+
+                _buildAmountTile(
+                  'My Equal Profit Share',
+                  equalShare,
+                  Icons.pie_chart_rounded,
+                  Colors.blue.shade700,
+                ),
+
+                _buildAmountTile(
+                  'My Withdrawal Profit',
+                  myApprovedProfit,
+                  Icons.check_circle_rounded,
+                  Colors.green.shade700,
+                ),
+
+                _buildAmountTile(
+                  'My Approval Pending Profit',
+                  myPendingProfit,
+                  Icons.hourglass_top_rounded,
+                  Colors.orange.shade700,
+                ),
+
+                const SizedBox(height: 4),
+
+                _buildAmountTile(
+                  'My Available Profit',
+                  myAvailableProfit,
+                  Icons.payments_rounded,
+                  myAvailableProfit > 0
+                      ? Colors.green.shade700
+                      : Colors.red.shade600,
+                  highlighted: true,
+                ),
+              ],
             ),
           ),
         ],
@@ -560,220 +827,657 @@ class _ProfitManagementScreenState extends State<ProfitManagementScreen> {
     );
   }
 
-  // -------------------------------------------------
-  // Transaction Card
-  // -------------------------------------------------
+  // =====================================================
+  // AMOUNT TILE
+  // =====================================================
 
-  Widget _buildTransactionCard(ProfitTransaction transaction) {
-    final statusColor = _statusColor(transaction.status);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _money(transaction.profitAmount),
-
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.12),
-
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-
-                  child: Text(
-                    _statusText(transaction.status),
-
-                    style: TextStyle(
-                      color: statusColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              'Date: '
-              '${transaction.profitDate}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-
-            // ---------------------------------------
-            // Profit Note
-            // ---------------------------------------
-            if (transaction.profitNote?.isNotEmpty == true) ...[
-              const SizedBox(height: 6),
-
-              Text(
-                'Note: '
-                '${transaction.profitNote}',
-              ),
-            ],
-
-            // ---------------------------------------
-            // Admin Note
-            // ---------------------------------------
-            if (transaction.adminNote?.isNotEmpty == true) ...[
-              const SizedBox(height: 6),
-
-              Text(
-                'Admin Note: '
-                '${transaction.adminNote}',
-
-                style: TextStyle(color: statusColor),
-              ),
-            ],
-
-            // ---------------------------------------
-            // Approved By
-            // ---------------------------------------
-            if (transaction.approvedByName?.isNotEmpty == true) ...[
-              const SizedBox(height: 6),
-
-              Text(
-                'Approved by: '
-                '${transaction.approvedByName}',
-              ),
-            ],
-
-            // ---------------------------------------
-            // Approved At
-            // ---------------------------------------
-            if (transaction.approvedAt?.isNotEmpty == true) ...[
-              const SizedBox(height: 6),
-
-              Text(
-                'Approved at: '
-                '${transaction.approvedAt}',
-              ),
-            ],
-
-            // ---------------------------------------
-            // Cancel Pending Request
-            // ---------------------------------------
-            if (transaction.status.toLowerCase() == 'pending') ...[
-              const SizedBox(height: 10),
-
-              Align(
-                alignment: Alignment.centerRight,
-
-                child: TextButton.icon(
-                  onPressed: () {
-                    _cancelTransaction(transaction);
-                  },
-
-                  icon: const Icon(Icons.cancel_outlined, color: Colors.red),
-
-                  label: const Text(
-                    'Cancel Request',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-              ),
-            ],
-          ],
+  Widget _buildAmountTile(
+    String label,
+    double amount,
+    IconData icon,
+    Color color, {
+    bool highlighted = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
+      decoration: BoxDecoration(
+        color: highlighted ? color.withOpacity(0.07) : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: highlighted ? color.withOpacity(0.16) : Colors.grey.shade200,
         ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.09),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: Icon(icon, color: color, size: 19),
+          ),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontSize: 13,
+                fontWeight: highlighted ? FontWeight.bold : FontWeight.w600,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          Text(
+            _money(amount),
+            style: TextStyle(
+              color: color,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // -------------------------------------------------
-  // Build
-  // -------------------------------------------------
+  // =====================================================
+  // TRANSACTION CARD
+  // =====================================================
+
+  Widget _buildTransactionCard(ProfitTransaction transaction) {
+    final statusColor = _statusColor(transaction.status);
+    final statusIcon = _statusIcon(transaction.status);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: statusColor.withOpacity(0.16)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.035),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // -------------------------------------------------
+          // AMOUNT + STATUS
+          // -------------------------------------------------
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.09),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(statusIcon, color: statusColor, size: 21),
+              ),
+
+              const SizedBox(width: 10),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _money(transaction.profitAmount),
+                      style: TextStyle(
+                        color: Colors.grey.shade900,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 3),
+
+                    Text(
+                      'Profit Withdrawal',
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.10),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    _statusText(transaction.status),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // -------------------------------------------------
+          // DATE
+          // -------------------------------------------------
+          _buildTransactionInfo(
+            Icons.calendar_today_rounded,
+            'Date',
+            transaction.profitDate,
+          ),
+
+          // -------------------------------------------------
+          // PROFIT NOTE
+          // -------------------------------------------------
+          if (transaction.profitNote?.isNotEmpty == true)
+            _buildTransactionInfo(
+              Icons.notes_rounded,
+              'Note',
+              transaction.profitNote!,
+            ),
+
+          // -------------------------------------------------
+          // ADMIN NOTE
+          // -------------------------------------------------
+          if (transaction.adminNote?.isNotEmpty == true)
+            _buildTransactionInfo(
+              Icons.admin_panel_settings_rounded,
+              'Admin Note',
+              transaction.adminNote!,
+              valueColor: statusColor,
+            ),
+
+          // -------------------------------------------------
+          // APPROVED BY
+          // -------------------------------------------------
+          if (transaction.approvedByName?.isNotEmpty == true)
+            _buildTransactionInfo(
+              Icons.person_rounded,
+              'Approved by',
+              transaction.approvedByName!,
+            ),
+
+          // -------------------------------------------------
+          // APPROVED AT
+          // -------------------------------------------------
+          if (transaction.approvedAt?.isNotEmpty == true)
+            _buildTransactionInfo(
+              Icons.access_time_rounded,
+              'Approved at',
+              transaction.approvedAt!,
+            ),
+
+          // -------------------------------------------------
+          // CANCEL
+          // -------------------------------------------------
+          if (transaction.status.toLowerCase() == 'pending') ...[
+            const SizedBox(height: 5),
+
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () {
+                  _cancelTransaction(transaction);
+                },
+                icon: Icon(
+                  Icons.cancel_outlined,
+                  color: Colors.red.shade600,
+                  size: 18,
+                ),
+                label: Text(
+                  'Cancel Request',
+                  style: TextStyle(
+                    color: Colors.red.shade600,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // =====================================================
+  // TRANSACTION INFO
+  // =====================================================
+
+  Widget _buildTransactionInfo(
+    IconData icon,
+    String label,
+    String value, {
+    Color? valueColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.grey.shade500, size: 15),
+
+          const SizedBox(width: 7),
+
+          Text(
+            '$label: ',
+            style: TextStyle(
+              color: Colors.grey.shade500,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                color: valueColor ?? Colors.grey.shade700,
+                fontSize: 11,
+                fontWeight: valueColor != null
+                    ? FontWeight.w600
+                    : FontWeight.normal,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =====================================================
+  // LOADING VIEW
+  // =====================================================
+
+  Widget _buildLoadingView() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.pie_chart_rounded,
+              color: Colors.blue.shade700,
+              size: 32,
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+              color: Colors.blue.shade700,
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            'Loading profit information...',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =====================================================
+  // BUILD
+  // =====================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F8FB),
+
+      // =================================================
+      // APP BAR
+      // =================================================
       appBar: AppBar(
-        title: const Text(
-          'Profit Management',
-          style: TextStyle(color: Colors.white),
+        elevation: 4,
+        shadowColor: Colors.black26,
+        backgroundColor: Colors.blue.shade700,
+        foregroundColor: Colors.white,
+        titleSpacing: 18,
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.14),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: const Icon(
+                Icons.pie_chart_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+
+            const SizedBox(width: 10),
+
+            const Text(
+              'NH Garden',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+
+            const SizedBox(width: 8),
+
+            Flexible(
+              child: Text(
+                '• Profit Management',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.85),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
-
-        backgroundColor: Colors.blue,
-
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
 
+      // =================================================
+      // BODY
+      // =================================================
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildLoadingView()
           : RefreshIndicator(
               onRefresh: _loadData,
-
+              color: Colors.blue.shade700,
               child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(16),
-
                 children: [
+                  // ---------------------------------------
+                  // SUMMARY
+                  // ---------------------------------------
                   _buildSummaryCard(),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
-                  SizedBox(
-                    height: 52,
+                  // ---------------------------------------
+                  // REQUEST BUTTON
+                  // ---------------------------------------
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.green.shade700, Colors.teal.shade600],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green.shade200.withOpacity(0.55),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(15),
+                        onTap: _summary == null || _isSubmitting
+                            ? null
+                            : _requestProfit,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 13,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                child: const Icon(
+                                  Icons.account_balance_wallet_rounded,
+                                  color: Colors.white,
+                                  size: 21,
+                                ),
+                              ),
 
-                    child: ElevatedButton.icon(
-                      onPressed: _summary == null || _isSubmitting
-                          ? null
-                          : _requestProfit,
+                              const SizedBox(width: 10),
 
-                      icon: const Icon(Icons.account_balance_wallet),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Request Profit Withdrawal',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Submit your available profit for approval',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
 
-                      label: _isSubmitting
-                          ? const SizedBox(
-                              height: 22,
-                              width: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Request Profit Withdrawal'),
+                              if (_isSubmitting)
+                                const SizedBox(
+                                  width: 23,
+                                  height: 23,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              else
+                                Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  color: Colors.white.withOpacity(0.85),
+                                  size: 16,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 24),
 
-                  const Text(
-                    'My Profit Transactions',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  // ---------------------------------------
+                  // TRANSACTIONS HEADER
+                  // ---------------------------------------
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 11,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.indigo.shade600, Colors.blue.shade500],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(13),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.indigo.shade100.withOpacity(0.7),
+                          blurRadius: 7,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.receipt_long_rounded,
+                            color: Colors.white,
+                            size: 19,
+                          ),
+                        ),
+
+                        const SizedBox(width: 9),
+
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'My Profit Transactions',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 1),
+                              Text(
+                                'Withdrawal requests and approval history',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.14),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${_transactions.length}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
 
+                  // ---------------------------------------
+                  // TRANSACTIONS
+                  // ---------------------------------------
                   if (_transactions.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(30),
+                    Container(
+                      padding: const EdgeInsets.all(28),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.receipt_long_outlined,
+                              size: 30,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
 
-                      child: Center(
-                        child: Text('No profit transactions found.'),
+                          const SizedBox(height: 11),
+
+                          Text(
+                            'No profit transactions found.',
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+
+                          const SizedBox(height: 4),
+
+                          Text(
+                            'Your withdrawal requests will appear here.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   else
                     ..._transactions.map(
                       (transaction) => _buildTransactionCard(transaction),
                     ),
+
+                  const SizedBox(height: 10),
                 ],
               ),
             ),

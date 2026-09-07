@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-
 import '../models/app_user.dart';
 
 class UserService {
@@ -35,9 +33,9 @@ class UserService {
       }),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
-    print('ID Token: Bearer $idToken');
+    //('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
+    //print('ID Token: Bearer $idToken');
 
     final responseData = jsonDecode(response.body);
 
@@ -73,9 +71,9 @@ class UserService {
       },
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
-    print('ID Token: Bearer $idToken');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
+    //print('ID Token: Bearer $idToken');
 
     final responseData = jsonDecode(response.body);
 

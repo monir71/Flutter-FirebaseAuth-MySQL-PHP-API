@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-
 import '../models/fund.dart';
 
 class FundService {
@@ -44,8 +42,8 @@ class FundService {
       },
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -96,8 +94,8 @@ class FundService {
       }),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -147,8 +145,8 @@ class FundService {
       }),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -187,8 +185,8 @@ class FundService {
       }),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 

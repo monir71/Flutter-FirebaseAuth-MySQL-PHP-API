@@ -20,6 +20,30 @@ double _toDouble(dynamic value) {
 }
 
 // =======================================================
+// DASHBOARD OWNER
+// =======================================================
+
+class DashboardOwner {
+  final int ownerId;
+  final String ownerName;
+  final String? ownerPhoto;
+
+  DashboardOwner({
+    required this.ownerId,
+    required this.ownerName,
+    this.ownerPhoto,
+  });
+
+  factory DashboardOwner.fromJson(Map<String, dynamic> json) {
+    return DashboardOwner(
+      ownerId: _toInt(json['owner_id']),
+      ownerName: json['owner_name'].toString(),
+      ownerPhoto: json['owner_photo']?.toString(),
+    );
+  }
+}
+
+// =======================================================
 // DASHBOARD DATA
 // =======================================================
 
@@ -76,6 +100,7 @@ class DashboardGarden {
   // -------------------------------------------------------
 
   final int ownerCount;
+  final List<DashboardOwner> owners;
 
   // -------------------------------------------------------
   // Financial Summary
@@ -107,6 +132,7 @@ class DashboardGarden {
     required this.gardenId,
     required this.gardenName,
     required this.ownerCount,
+    List<DashboardOwner>? owners,
     required this.fundTotal,
     required this.expenseTotal,
     required this.incomeTotal,
@@ -118,7 +144,7 @@ class DashboardGarden {
     required this.allExpenses,
     required this.allIncomes,
     required this.allLoans,
-  });
+  }) : owners = owners ?? [];
 
   // -------------------------------------------------------
   // From JSON
@@ -136,6 +162,14 @@ class DashboardGarden {
       gardenName: json['garden_name'].toString(),
 
       ownerCount: _toInt(json['owner_count']),
+
+      owners: (json['owners'] as List<dynamic>? ?? [])
+          .map(
+            (item) => DashboardOwner.fromJson(
+          item as Map<String, dynamic>,
+        ),
+      )
+          .toList(),
 
       // ---------------------------------------------------
       // Financial Summary

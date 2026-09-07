@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-
 import '../models/loan.dart';
 
 class LoanService {
@@ -86,15 +84,15 @@ class LoanService {
       }),
     );
 
-    print(
-      'PHP Status: '
-          '${response.statusCode}',
-    );
+    //print(
+      //'PHP Status: '
+          //'${response.statusCode}',
+    //);
 
-    print(
-      'PHP Response: '
-          '${response.body}',
-    );
+    //print(
+      //'PHP Response: '
+          //'${response.body}',
+    //);
 
     final data =
     jsonDecode(response.body);
@@ -135,15 +133,15 @@ class LoanService {
       },
     );
 
-    print(
-      'PHP Status: '
-          '${response.statusCode}',
-    );
+    //print(
+      //'PHP Status: '
+          //'${response.statusCode}',
+    //);
 
-    print(
-      'PHP Response: '
-          '${response.body}',
-    );
+    //print(
+      //'PHP Response: '
+          //'${response.body}',
+    //);
 
     final data =
     jsonDecode(response.body);
@@ -219,15 +217,15 @@ class LoanService {
       }),
     );
 
-    print(
-      'PHP Status: '
-          '${response.statusCode}',
-    );
+    //print(
+      //'PHP Status: '
+          //'${response.statusCode}',
+    //);
 
-    print(
-      'PHP Response: '
-          '${response.body}',
-    );
+    //print(
+      //'PHP Response: '
+          //'${response.body}',
+    //);
 
     final data =
     jsonDecode(response.body);
@@ -278,15 +276,15 @@ class LoanService {
       }),
     );
 
-    print(
-      'PHP Status: '
-          '${response.statusCode}',
-    );
+    //print(
+      //'PHP Status: '
+          //'${response.statusCode}',
+    //);
 
-    print(
-      'PHP Response: '
-          '${response.body}',
-    );
+    //print(
+      //'PHP Response: '
+          //'${response.body}',
+    //);
 
     final data =
     jsonDecode(response.body);

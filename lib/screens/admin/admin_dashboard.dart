@@ -73,30 +73,30 @@ class AdminDashboard extends StatelessWidget {
                 try {
                   final owners = await OwnerService.getOwners();
 
-                  print('==============================');
-                  print('Owner List');
-                  print('==============================');
+                  //print('==============================');
+                  //print('Owner List');
+                  //print('==============================');
 
                   for (final owner in owners) {
-                    print('Owner ID: ${owner.ownerId}');
-                    print('Owner Name: ${owner.ownerName}');
+                    //print('Owner ID: ${owner.ownerId}');
+                    //print('Owner Name: ${owner.ownerName}');
 
-                    print('Gardens:');
+                    //print('Gardens:');
 
                     for (final garden in owner.gardens) {
-                      print(
-                        '  Garden ID: ${garden.gardenId}',
-                      );
+                      //print(
+                        //'  Garden ID: ${garden.gardenId}',
+                      //);
 
-                      print(
-                        '  Garden Name: ${garden.gardenName}',
-                      );
+                      //print(
+                        //'  Garden Name: ${garden.gardenName}',
+                      //);
                     }
 
-                    print('------------------------------');
+                    //print('------------------------------');
                   }
                 } catch (e) {
-                  print('Owner Error: $e');
+                  //print('Owner Error: $e');
                 }
               },
               child: const Text('Get Owners'),
@@ -112,20 +112,20 @@ class AdminDashboard extends StatelessWidget {
                     gardenIds: [1],
                   );
 
-                  print('==============================');
-                  print('Owner Added Successfully');
-                  print('==============================');
-                  print('Owner ID: ${owner.ownerId}');
-                  print('Owner Name: ${owner.ownerName}');
+                  //print('==============================');
+                  //print('Owner Added Successfully');
+                  //print('==============================');
+                  //print('Owner ID: ${owner.ownerId}');
+                  //print('Owner Name: ${owner.ownerName}');
 
                   for (final garden in owner.gardens) {
-                    print('Garden ID: ${garden.gardenId}');
-                    print('Garden Name: ${garden.gardenName}');
+                    //print('Garden ID: ${garden.gardenId}');
+                    //print('Garden Name: ${garden.gardenName}');
                   }
 
-                  print('------------------------------');
+                  //print('------------------------------');
                 } catch (e) {
-                  print('Owner Add Error: $e');
+                  //print('Owner Add Error: $e');
                 }
               },
               child: const Text('Test Add Owner'),

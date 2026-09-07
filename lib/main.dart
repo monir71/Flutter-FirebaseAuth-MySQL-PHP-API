@@ -14,6 +14,7 @@ void main() async {
     WindowOptions windowOptions = const WindowOptions(
       size: Size(1200, 800),
       center: true,
+      title: 'North Hunter Database',
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'NH Garden',
+      title: 'North Hunter Database',
       debugShowCheckedModeBanner: false,
       routes: {
         '/admin': (context) {

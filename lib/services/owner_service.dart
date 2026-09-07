@@ -1,8 +1,7 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:image_picker/image_picker.dart';
 import '../models/dashboard_data.dart';
 import '../models/general_user.dart';
 import '../models/owner.dart';
@@ -42,8 +41,8 @@ class OwnerService {
       headers: {'Authorization': 'Bearer $idToken'},
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -77,8 +76,8 @@ class OwnerService {
       body: jsonEncode({'owner_name': ownerName, 'garden_ids': gardenIds}),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -102,8 +101,8 @@ class OwnerService {
       headers: {'Authorization': 'Bearer $idToken'},
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -148,8 +147,8 @@ class OwnerService {
       body: jsonEncode({'owner_id': ownerId}),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -179,8 +178,8 @@ class OwnerService {
       body: jsonEncode({'owner_id': ownerId, 'owner_name': ownerName}),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -210,8 +209,8 @@ class OwnerService {
       body: jsonEncode({'owner_id': ownerId, 'garden_ids': gardenIds}),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final responseData = jsonDecode(response.body);
 
@@ -236,8 +235,8 @@ class OwnerService {
       headers: {'Authorization': 'Bearer $idToken'},
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final data = jsonDecode(response.body);
 
@@ -262,8 +261,8 @@ class OwnerService {
       },
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final data = jsonDecode(response.body);
 
@@ -307,8 +306,8 @@ class OwnerService {
       body: jsonEncode({'owner_id': ownerId, 'user_id': userId}),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final data = jsonDecode(response.body);
 
@@ -335,8 +334,8 @@ class OwnerService {
       body: jsonEncode({'owner_id': ownerId}),
     );
 
-    print('PHP Status: ${response.statusCode}');
-    print('PHP Response: ${response.body}');
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
 
     final data = jsonDecode(response.body);
 
@@ -345,5 +344,85 @@ class OwnerService {
     }
 
     throw Exception(data['message'] ?? 'Unable to unlink user from owner.');
+  }
+
+  // -------------------------------------------------
+  // Upload Owner Photo
+  // -------------------------------------------------
+
+  static Future<String> uploadOwnerPhoto({
+    required int ownerId,
+    required XFile photo,
+  }) async {
+    final idToken = await _getIdToken();
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$baseUrl/upload_owner_photo.php'),
+    );
+
+    request.headers['Authorization'] = 'Bearer $idToken';
+
+    request.fields['owner_id'] = ownerId.toString();
+
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'photo',
+        photo.path,
+      ),
+    );
+
+    final streamedResponse = await request.send();
+
+    final response = await http.Response.fromStream(streamedResponse);
+
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200 && data['success'] == true) {
+      return data['data']['owner_photo'].toString();
+    }
+
+    throw Exception(
+      data['message'] ?? 'Unable to upload owner photo.',
+    );
+  }
+
+  // -------------------------------------------------
+  // Admin Dashboard Garden Details
+  // -------------------------------------------------
+
+  static Future<List<DashboardGarden>> getAdminGardens() async {
+    final idToken = await _getIdToken();
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/get_admin_gardens.php'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    //print('PHP Status: ${response.statusCode}');
+    //print('PHP Response: ${response.body}');
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200 && data['success'] == true) {
+      final List<dynamic> gardens = data['data'] ?? [];
+
+      return gardens
+          .map(
+            (garden) => DashboardGarden.fromJson(
+          garden as Map<String, dynamic>,
+        ),
+      )
+          .toList();
+    }
+
+    throw Exception(
+      data['message'] ?? 'Unable to load admin gardens.',
+    );
   }
 }

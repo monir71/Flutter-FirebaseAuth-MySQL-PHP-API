@@ -14,6 +14,7 @@ void main() async {
     WindowOptions windowOptions = const WindowOptions(
       size: Size(1200, 800),
       center: true,
+      //titleBarStyle: TitleBarStyle.hidden,
       title: 'North Hunter Database',
     );
 

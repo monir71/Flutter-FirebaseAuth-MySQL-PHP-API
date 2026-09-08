@@ -39,6 +39,192 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   // ============================================================
+  // ADMIN MANAGEMENT FOOTER
+  // ============================================================
+
+  Widget _buildManagementFooter() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 10,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 72,
+          child: Row(
+            children: [
+              // Garden
+              _buildFooterItem(
+                icon: Icons.agriculture_rounded,
+                label: 'Garden',
+                color: Colors.teal.shade700,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const GardenManagementScreen(),
+                    ),
+                  ).then((_) {
+                    _loadGardens();
+                  });
+                },
+              ),
+
+              // Owners
+              _buildFooterItem(
+                icon: Icons.people_alt_rounded,
+                label: 'Owners',
+                color: Colors.deepPurple.shade600,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const OwnerManagementScreen(),
+                    ),
+                  ).then((_) {
+                    loadOwners();
+                  });
+                },
+              ),
+
+              // Fund
+              _buildFooterItem(
+                icon: Icons.account_balance_wallet_rounded,
+                label: 'Fund',
+                color: Colors.blue.shade700,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const FundManagementScreen(),
+                    ),
+                  );
+                },
+              ),
+
+              // Expense
+              _buildFooterItem(
+                icon: Icons.receipt_long_rounded,
+                label: 'Expense',
+                color: Colors.deepOrange.shade600,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ExpenseManagementScreen(),
+                    ),
+                  );
+                },
+              ),
+
+              // Income
+              _buildFooterItem(
+                icon: Icons.trending_up_rounded,
+                label: 'Income',
+                color: Colors.green.shade700,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const IncomeManagementScreen(),
+                    ),
+                  );
+                },
+              ),
+
+              // Loan
+              _buildFooterItem(
+                icon: Icons.account_balance_rounded,
+                label: 'Loan',
+                color: Colors.indigo.shade600,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LoanManagementScreen(),
+                    ),
+                  );
+                },
+              ),
+
+              // Partners
+              _buildFooterItem(
+                icon: Icons.handshake_rounded,
+                label: 'Partners',
+                color: Colors.cyan.shade700,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                      const FinancialPartnerManagementScreen(),
+                    ),
+                  );
+                },
+              ),
+
+              // Profit
+              _buildFooterItem(
+                icon: Icons.pie_chart_rounded,
+                label: 'Profit',
+                color: Colors.amber.shade700,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                      const AdminProfitManagementScreen(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooterItem({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onPressed,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: color,
+              size: 25,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
   // LOAD OWNERS
   // ============================================================
 
@@ -910,7 +1096,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         shadowColor: Colors.black26,
         backgroundColor: Colors.teal.shade700,
         foregroundColor: Colors.white,
-
+        automaticallyImplyLeading: false,
         titleSpacing: 18,
 
         title: Row(
@@ -1583,6 +1769,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: _buildManagementFooter(),
     );
   }
 }

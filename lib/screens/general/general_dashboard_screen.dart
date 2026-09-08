@@ -198,7 +198,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'NH Garden',
+                  'North Hunter Garden',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,

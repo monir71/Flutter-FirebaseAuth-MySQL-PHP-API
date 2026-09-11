@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:nhgarden/config/api_config.dart';
 import '../models/dashboard_data.dart';
 import '../models/general_user.dart';
 import '../models/owner.dart';
 
 class OwnerService {
-  static const String baseUrl = 'http://localhost/gardenfluttermysql/api';
+  static const String baseUrl = ApiConfig.baseApiUrl;
 
   // -------------------------------------------------
   // Get Firebase ID Token
@@ -350,6 +351,10 @@ class OwnerService {
   // Upload Owner Photo
   // -------------------------------------------------
 
+  // -------------------------------------------------
+// Upload Owner Photo
+// -------------------------------------------------
+
   static Future<String> uploadOwnerPhoto({
     required int ownerId,
     required XFile photo,
@@ -365,10 +370,15 @@ class OwnerService {
 
     request.fields['owner_id'] = ownerId.toString();
 
+    // Read image as bytes.
+    // This works on both Windows and Web.
+    final bytes = await photo.readAsBytes();
+
     request.files.add(
-      await http.MultipartFile.fromPath(
+      http.MultipartFile.fromBytes(
         'photo',
-        photo.path,
+        bytes,
+        filename: photo.name,
       ),
     );
 

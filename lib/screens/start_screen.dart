@@ -71,7 +71,7 @@ class StartScreen extends StatelessWidget {
                     // ---------------------------------------
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(24, 34, 24, 32),
+                      padding: const EdgeInsets.fromLTRB(16, 34, 16, 32),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [Colors.blue.shade800, Colors.blue.shade600],
@@ -103,14 +103,24 @@ class StartScreen extends StatelessWidget {
 
                           const SizedBox(height: 20),
 
-                          const Text(
-                            'Welcome to North Hunter',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final width = constraints.maxWidth;
+
+                              return FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  'Welcome to North Hunter',
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    fontSize: width < 600 ? 32 : 42,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
 
                           const SizedBox(height: 8),

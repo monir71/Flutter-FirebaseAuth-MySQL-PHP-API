@@ -41,9 +41,11 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
   // -------------------------------------------------
 
   Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     try {
       final results = await Future.wait([
@@ -166,17 +168,23 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
     Garden? selectedGarden;
 
     if (_owners.isNotEmpty) {
-      selectedOwner = _owners.firstWhere(
+      final matchingOwners = _owners.where(
         (owner) => owner.ownerId == expense.ownerId,
-        orElse: () => _owners.first,
       );
+
+      selectedOwner = matchingOwners.isNotEmpty
+          ? matchingOwners.first
+          : _owners.first;
     }
 
     if (_gardens.isNotEmpty) {
-      selectedGarden = _gardens.firstWhere(
+      final matchingGardens = _gardens.where(
         (garden) => garden.gardenId == expense.gardenId,
-        orElse: () => _gardens.first,
       );
+
+      selectedGarden = matchingGardens.isNotEmpty
+          ? matchingGardens.first
+          : _gardens.first;
     }
 
     DateTime selectedDate =
@@ -188,16 +196,21 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 24,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              titlePadding: const EdgeInsets.fromLTRB(24, 22, 24, 8),
-              contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
-              actionsPadding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
+              titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+              contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+              actionsPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+
               title: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(9),
                     decoration: BoxDecoration(
                       color: Colors.deepOrange.shade50,
                       borderRadius: BorderRadius.circular(12),
@@ -207,103 +220,126 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
                       color: Colors.deepOrange.shade600,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Edit Expense',
-                    style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+
+                  const SizedBox(width: 10),
+
+                  const Expanded(
+                    child: Text(
+                      'Edit Expense',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    DropdownButtonFormField<Owner>(
-                      value: selectedOwner,
-                      decoration: _inputDecoration(
-                        label: 'Owner',
-                        icon: Icons.person_rounded,
-                      ),
-                      items: _owners.map((owner) {
-                        return DropdownMenuItem<Owner>(
-                          value: owner,
-                          child: Text(owner.ownerName),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setDialogState(() {
-                          selectedOwner = value;
-                        });
-                      },
-                    ),
 
-                    const SizedBox(height: 14),
-
-                    DropdownButtonFormField<Garden>(
-                      value: selectedGarden,
-                      decoration: _inputDecoration(
-                        label: 'Garden',
-                        icon: Icons.agriculture_rounded,
-                      ),
-                      items: _gardens.map((garden) {
-                        return DropdownMenuItem<Garden>(
-                          value: garden,
-                          child: Text(garden.gardenName),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setDialogState(() {
-                          selectedGarden = value;
-                        });
-                      },
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    TextField(
-                      controller: descriptionController,
-                      maxLines: 2,
-                      decoration: _inputDecoration(
-                        label: 'Expense Description',
-                        icon: Icons.description_rounded,
-                      ),
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    TextField(
-                      controller: amountController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: _inputDecoration(
-                        label: 'Expense Amount',
-                        icon: Icons.payments_rounded,
-                        prefixText: '৳ ',
-                      ),
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    _buildDialogDateSelector(
-                      selectedDate: selectedDate,
-                      onPressed: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: selectedDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-
-                        if (date != null) {
+              content: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 500,
+                  maxHeight: 450,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      DropdownButtonFormField<Owner>(
+                        value: selectedOwner,
+                        isExpanded: true,
+                        decoration: _inputDecoration(
+                          label: 'Owner',
+                          icon: Icons.person_rounded,
+                        ),
+                        items: _owners.map((owner) {
+                          return DropdownMenuItem<Owner>(
+                            value: owner,
+                            child: Text(
+                              owner.ownerName,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
                           setDialogState(() {
-                            selectedDate = date;
+                            selectedOwner = value;
                           });
-                        }
-                      },
-                    ),
-                  ],
+                        },
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      DropdownButtonFormField<Garden>(
+                        value: selectedGarden,
+                        isExpanded: true,
+                        decoration: _inputDecoration(
+                          label: 'Garden',
+                          icon: Icons.agriculture_rounded,
+                        ),
+                        items: _gardens.map((garden) {
+                          return DropdownMenuItem<Garden>(
+                            value: garden,
+                            child: Text(
+                              garden.gardenName,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setDialogState(() {
+                            selectedGarden = value;
+                          });
+                        },
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      TextField(
+                        controller: descriptionController,
+                        maxLines: 2,
+                        decoration: _inputDecoration(
+                          label: 'Expense Description',
+                          icon: Icons.description_rounded,
+                        ),
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      TextField(
+                        controller: amountController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: _inputDecoration(
+                          label: 'Expense Amount',
+                          icon: Icons.payments_rounded,
+                          prefixText: '৳ ',
+                        ),
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      _buildDialogDateSelector(
+                        selectedDate: selectedDate,
+                        onPressed: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+
+                          if (date != null) {
+                            setDialogState(() {
+                              selectedDate = date;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
+
               actions: [
                 TextButton(
                   onPressed: () {
@@ -317,6 +353,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
                     ),
                   ),
                 ),
+
                 ElevatedButton.icon(
                   onPressed: () async {
                     final description = descriptionController.text.trim();
@@ -354,15 +391,11 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
                         expenseDate: date,
                       );
 
-                      if (!context.mounted) {
-                        return;
-                      }
+                      if (!context.mounted) return;
 
                       Navigator.pop(context, true);
                     } catch (e) {
-                      if (!context.mounted) {
-                        return;
-                      }
+                      if (!context.mounted) return;
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Update failed: $e')),
@@ -412,30 +445,41 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          titlePadding: const EdgeInsets.fromLTRB(24, 22, 24, 8),
-          contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
-          actionsPadding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
+          titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+          contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+
           title: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
                   color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(Icons.delete_rounded, color: Colors.red.shade700),
               ),
-              const SizedBox(width: 12),
-              const Text(
-                'Delete Expense',
-                style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+
+              const SizedBox(width: 10),
+
+              const Expanded(
+                child: Text(
+                  'Delete Expense',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
+
           content: Container(
+            constraints: const BoxConstraints(maxWidth: 500),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
@@ -485,6 +529,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
               ],
             ),
           ),
+
           actions: [
             TextButton(
               onPressed: () {
@@ -498,6 +543,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
                 ),
               ),
             ),
+
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pop(context, true);
@@ -567,6 +613,8 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
   // -------------------------------------------------
 
   void _showMessage(String message) {
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
@@ -599,23 +647,84 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
       backgroundColor: const Color(0xFFF6F8FB),
       body: _isLoading
           ? _buildLoadingState()
-          : Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildAddExpenseCard(),
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmallScreen = constraints.maxWidth < 700;
 
-                  const SizedBox(height: 28),
+                if (isSmallScreen) {
+                  return _buildSmallScreenLayout();
+                }
 
-                  _buildExpenseListHeader(),
-
-                  const SizedBox(height: 12),
-
-                  Expanded(child: _buildExpenseList()),
-                ],
-              ),
+                return _buildDesktopLayout();
+              },
             ),
+    );
+  }
+
+  // -------------------------------------------------
+  // Desktop / Web Layout
+  // -------------------------------------------------
+
+  Widget _buildDesktopLayout() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAddExpenseCard(),
+
+          const SizedBox(height: 24),
+
+          _buildExpenseListHeader(),
+
+          const SizedBox(height: 12),
+
+          Expanded(child: _buildExpenseList()),
+        ],
+      ),
+    );
+  }
+
+  // -------------------------------------------------
+  // Small Screen Layout
+  // -------------------------------------------------
+
+  Widget _buildSmallScreenLayout() {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAddExpenseCard(),
+
+          const SizedBox(height: 22),
+
+          _buildExpenseListHeader(),
+
+          const SizedBox(height: 12),
+
+          _buildSmallScreenExpenseList(),
+
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+
+  // -------------------------------------------------
+  // Small Screen Expense List
+  // -------------------------------------------------
+
+  Widget _buildSmallScreenExpenseList() {
+    if (_expenses.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return Column(
+      children: _expenses.map((expense) {
+        return _buildExpenseCard(expense);
+      }).toList(),
     );
   }
 
@@ -773,6 +882,8 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
                       SizedBox(height: 3),
                       Text(
                         'Record a new garden expense',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ],
@@ -788,6 +899,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
               children: [
                 DropdownButtonFormField<Owner>(
                   value: _selectedOwner,
+                  isExpanded: true,
                   decoration: _inputDecoration(
                     label: 'Owner',
                     icon: Icons.person_rounded,
@@ -795,7 +907,10 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
                   items: _owners.map((owner) {
                     return DropdownMenuItem<Owner>(
                       value: owner,
-                      child: Text(owner.ownerName),
+                      child: Text(
+                        owner.ownerName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -809,6 +924,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
 
                 DropdownButtonFormField<Garden>(
                   value: _selectedGarden,
+                  isExpanded: true,
                   decoration: _inputDecoration(
                     label: 'Garden',
                     icon: Icons.agriculture_rounded,
@@ -816,7 +932,10 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
                   items: _gardens.map((garden) {
                     return DropdownMenuItem<Garden>(
                       value: garden,
-                      child: Text(garden.gardenName),
+                      child: Text(
+                        garden.gardenName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -932,13 +1051,18 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
               SizedBox(height: 2),
               Text(
                 'All recorded garden expenses',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ],
           ),
         ),
 
+        const SizedBox(width: 8),
+
         Container(
+          constraints: const BoxConstraints(minWidth: 38),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
             color: Colors.deepOrange.shade50,
@@ -946,6 +1070,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
           ),
           child: Text(
             '${_expenses.length}',
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.deepOrange.shade700,
               fontWeight: FontWeight.bold,
@@ -958,7 +1083,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
   }
 
   // -------------------------------------------------
-  // Expense List
+  // Desktop Expense List
   // -------------------------------------------------
 
   Widget _buildExpenseList() {
@@ -973,9 +1098,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
         padding: const EdgeInsets.only(bottom: 20),
         itemCount: _expenses.length,
         itemBuilder: (context, index) {
-          final expense = _expenses[index];
-
-          return _buildExpenseCard(expense);
+          return _buildExpenseCard(_expenses[index]);
         },
       ),
     );
@@ -998,8 +1121,8 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 68,
-              height: 68,
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -1017,14 +1140,14 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
                   const Icon(
                     Icons.receipt_long_rounded,
                     color: Colors.white,
-                    size: 22,
+                    size: 21,
                   ),
                   const SizedBox(height: 3),
                   Text(
                     '#${expense.expenseId}',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -1032,7 +1155,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
               ),
             ),
 
-            const SizedBox(width: 14),
+            const SizedBox(width: 11),
 
             Expanded(
               child: Column(
@@ -1052,6 +1175,8 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
 
                   Text(
                     '৳${expense.expenseAmount.toStringAsFixed(2)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.deepOrange.shade700,
                       fontSize: 18,
@@ -1083,7 +1208,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
               ),
             ),
 
-            const SizedBox(width: 6),
+            const SizedBox(width: 5),
 
             Column(
               children: [
@@ -1156,8 +1281,8 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
           borderRadius: BorderRadius.circular(10),
           onTap: onPressed,
           child: Padding(
-            padding: const EdgeInsets.all(9),
-            child: Icon(icon, color: color, size: 19),
+            padding: const EdgeInsets.all(8),
+            child: Icon(icon, color: color, size: 18),
           ),
         ),
       ),
@@ -1244,6 +1369,7 @@ class _ExpenseManagementScreenState extends State<ExpenseManagementScreen> {
                   'Expense Date',
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                 ),
+
                 Text(
                   _formatDate(_selectedDate),
                   style: const TextStyle(

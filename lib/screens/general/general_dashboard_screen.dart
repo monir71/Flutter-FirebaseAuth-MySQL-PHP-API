@@ -24,9 +24,12 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
   @override
   void initState() {
     super.initState();
-
     _loadDashboard();
   }
+
+  // -------------------------------------------------
+  // Garden Details
+  // -------------------------------------------------
 
   void _showGardenDetails(DashboardGarden garden) {
     Navigator.push(
@@ -82,17 +85,11 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
         _dashboardData = dashboardData;
       });
 
-      _showMessage(
-        'Dashboard refreshed successfully.',
-        isError: false,
-      );
+      _showMessage('Dashboard refreshed successfully.', isError: false);
     } catch (e) {
       if (!mounted) return;
 
-      _showMessage(
-        'Unable to refresh dashboard: $e',
-        isError: true,
-      );
+      _showMessage('Unable to refresh dashboard: $e', isError: true);
     } finally {
       if (!mounted) return;
 
@@ -124,9 +121,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
 
   String _money(double value) {
     final formatter = NumberFormat('#,##0');
-    final formattedValue = formatter.format(value);
-
-    return '৳ $formattedValue';
+    return '৳ ${formatter.format(value)}';
   }
 
   // -------------------------------------------------
@@ -171,101 +166,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FB),
-      appBar: AppBar(
-        elevation: 4,
-        shadowColor: Colors.black26,
-        backgroundColor: Colors.teal.shade700,
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        titleSpacing: 18,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.agriculture_rounded,
-                color: Colors.white,
-                size: 23,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'North Hunter Garden',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'My Dashboard',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          // Refresh
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: IconButton(
-                icon: _isRefreshing
-                    ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2.5,
-                  ),
-                )
-                    : const Icon(
-                  Icons.refresh_rounded,
-                  color: Colors.white,
-                ),
-                tooltip: 'Refresh Dashboard',
-                onPressed: _isRefreshing ? null : _refreshDashboard,
-              ),
-            ),
-          ),
-
-          // Logout
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.logout_rounded,
-                  color: Colors.white,
-                ),
-                tooltip: 'Log Out',
-                onPressed: _logout,
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: _isLoading
           ? _buildLoadingState()
           : _dashboardData == null
@@ -275,41 +176,175 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
   }
 
   // -------------------------------------------------
+  // Responsive AppBar
+  // -------------------------------------------------
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      elevation: 4,
+      shadowColor: Colors.black26,
+      backgroundColor: Colors.teal.shade700,
+      foregroundColor: Colors.white,
+      automaticallyImplyLeading: false,
+      titleSpacing: 12,
+
+      title: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmall = constraints.maxWidth < 400;
+
+          return Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: const Icon(
+                  Icons.agriculture_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+
+              const SizedBox(width: 9),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'North Hunter Garden',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isSmall ? 15 : 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text(
+                      'My Dashboard',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+
+      actions: [
+        // -------------------------------------------
+        // Refresh Button
+        // -------------------------------------------
+        Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: _buildAppBarButton(
+            icon: _isRefreshing
+                ? const SizedBox(
+                    width: 19,
+                    height: 19,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.3,
+                    ),
+                  )
+                : const Icon(Icons.refresh_rounded, color: Colors.white),
+            tooltip: 'Refresh Dashboard',
+            onPressed: _isRefreshing ? null : _refreshDashboard,
+          ),
+        ),
+
+        // -------------------------------------------
+        // Logout Button
+        // -------------------------------------------
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: _buildAppBarButton(
+            icon: const Icon(Icons.logout_rounded, color: Colors.white),
+            tooltip: 'Log Out',
+            onPressed: _logout,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // -------------------------------------------------
+  // AppBar Button
+  // -------------------------------------------------
+
+  Widget _buildAppBarButton({
+    required Widget icon,
+    required String tooltip,
+    required VoidCallback? onPressed,
+  }) {
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: Material(
+        color: Colors.white.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(11),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          icon: icon,
+          tooltip: tooltip,
+          onPressed: onPressed,
+        ),
+      ),
+    );
+  }
+
+  // -------------------------------------------------
   // Loading State
   // -------------------------------------------------
 
   Widget _buildLoadingState() {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.teal.shade50,
-              shape: BoxShape.circle,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.teal.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.dashboard_rounded,
+                color: Colors.teal.shade700,
+                size: 42,
+              ),
             ),
-            child: Icon(
-              Icons.dashboard_rounded,
+            const SizedBox(height: 18),
+            CircularProgressIndicator(
               color: Colors.teal.shade700,
-              size: 42,
+              strokeWidth: 3,
             ),
-          ),
-          const SizedBox(height: 18),
-          CircularProgressIndicator(
-            color: Colors.teal.shade700,
-            strokeWidth: 3,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Loading dashboard...',
-            style: TextStyle(
-              color: Colors.grey.shade700,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 12),
+            Text(
+              'Loading dashboard...',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -320,7 +355,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
 
   Widget _buildEmptyDashboard() {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(30),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -368,76 +403,21 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
 
     return RefreshIndicator(
       color: Colors.teal.shade700,
-      onRefresh: _loadDashboard,
+      onRefresh: _refreshDashboard,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 30),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(12, 16, 12, 30),
         children: [
           _buildWelcomeCard(dashboard),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
 
           // -----------------------------------------
           // Garden Header
           // -----------------------------------------
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(9),
-                decoration: BoxDecoration(
-                  color: Colors.teal.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.agriculture_rounded,
-                  color: Colors.teal.shade700,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'My Gardens',
-                      style: TextStyle(
-                        color: Colors.grey.shade800,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Your gardens and financial overview',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 11,
-                  vertical: 7,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.teal.shade700,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${dashboard.gardens.length}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildGardenSectionHeader(dashboard),
 
-          const SizedBox(height: 15),
+          const SizedBox(height: 14),
 
           if (dashboard.gardens.isEmpty)
             _buildNoGardens()
@@ -449,12 +429,81 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
   }
 
   // -------------------------------------------------
+  // Garden Section Header
+  // -------------------------------------------------
+
+  Widget _buildGardenSectionHeader(DashboardData dashboard) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.teal.shade50,
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Icon(
+            Icons.agriculture_rounded,
+            color: Colors.teal.shade700,
+            size: 23,
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'My Gardens',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.grey.shade800,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Your gardens and financial overview',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(width: 8),
+
+        Container(
+          constraints: const BoxConstraints(minWidth: 34),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          decoration: BoxDecoration(
+            color: Colors.teal.shade700,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            '${dashboard.gardens.length}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // -------------------------------------------------
   // Welcome Card
   // -------------------------------------------------
 
   Widget _buildWelcomeCard(DashboardData dashboard) {
-    final String? photoUrl =
-    dashboard.ownerPhoto?.isNotEmpty == true
+    final String? photoUrl = dashboard.ownerPhoto?.isNotEmpty == true
         ? '${ApiConfig.baseUrl}/${dashboard.ownerPhoto}'
         : null;
 
@@ -462,118 +511,128 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
       elevation: 7,
       shadowColor: Colors.black26,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.teal.shade800,
-              Colors.teal.shade600,
-            ],
+            colors: [Colors.teal.shade800, Colors.teal.shade600],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
-        child: Row(
-          children: [
-            // Owner Photo
-            Container(
-              width: 62,
-              height: 62,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.5),
-                  width: 2,
-                ),
-              ),
-              child: ClipOval(
-                child: photoUrl != null
-                    ? Image.network(
-                  photoUrl,
-                  width: 62,
-                  height: 62,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.white.withOpacity(0.15),
-                      child: const Icon(
-                        Icons.person_rounded,
-                        color: Colors.white,
-                        size: 34,
-                      ),
-                    );
-                  },
-                )
-                    : Container(
-                  color: Colors.white.withOpacity(0.15),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    color: Colors.white,
-                    size: 34,
-                  ),
-                ),
-              ),
-            ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isVeryNarrow = constraints.maxWidth < 320;
 
-            const SizedBox(width: 16),
-
-            Expanded(
-              child: Column(
+            if (isVeryNarrow) {
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Welcome Back',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-
-                  const SizedBox(height: 3),
-
-                  Text(
-                    dashboard.ownerName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 21,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 5),
-
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.badge_rounded,
-                        color: Colors.white70,
-                        size: 15,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        'Owner ID: ${dashboard.ownerId}',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildOwnerPhoto(photoUrl),
+                  const SizedBox(height: 12),
+                  _buildWelcomeText(dashboard),
                 ],
+              );
+            }
+
+            return Row(
+              children: [
+                _buildOwnerPhoto(photoUrl),
+                const SizedBox(width: 14),
+                Expanded(child: _buildWelcomeText(dashboard)),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // -------------------------------------------------
+  // Owner Photo
+  // -------------------------------------------------
+
+  Widget _buildOwnerPhoto(String? photoUrl) {
+    return Container(
+      width: 62,
+      height: 62,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+      ),
+      child: ClipOval(
+        child: photoUrl != null
+            ? Image.network(
+                photoUrl,
+                width: 62,
+                height: 62,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildDefaultOwnerPhoto();
+                },
+              )
+            : _buildDefaultOwnerPhoto(),
+      ),
+    );
+  }
+
+  Widget _buildDefaultOwnerPhoto() {
+    return Container(
+      color: Colors.white.withOpacity(0.15),
+      child: const Icon(Icons.person_rounded, color: Colors.white, size: 34),
+    );
+  }
+
+  // -------------------------------------------------
+  // Welcome Text
+  // -------------------------------------------------
+
+  Widget _buildWelcomeText(DashboardData dashboard) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Welcome Back',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+
+        const SizedBox(height: 3),
+
+        Text(
+          dashboard.ownerName,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 21,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 5),
+
+        Row(
+          children: [
+            const Icon(Icons.badge_rounded, color: Colors.white70, size: 15),
+            const SizedBox(width: 5),
+            Expanded(
+              child: Text(
+                'Owner ID: ${dashboard.ownerId}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
               ),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 
@@ -606,6 +665,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
             const SizedBox(height: 14),
             Text(
               'No Gardens Found',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey.shade800,
                 fontSize: 17,
@@ -644,74 +704,80 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
       margin: const EdgeInsets.only(bottom: 18),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(19)),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(19),
-        child: Column(
-          children: [
-            // ---------------------------------------
-            // Garden Header
-            // ---------------------------------------
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.teal.shade700, Colors.teal.shade500],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+      child: Column(
+        children: [
+          // -----------------------------------------
+          // Garden Header
+          // -----------------------------------------
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.teal.shade700, Colors.teal.shade500],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.agriculture_rounded,
-                      color: Colors.white,
-                      size: 27,
-                    ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(11),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          garden.gardenName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Garden ID: ${garden.gardenId}',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: const Icon(
+                    Icons.agriculture_rounded,
+                    color: Colors.white,
+                    size: 25,
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(9),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                ),
+
+                const SizedBox(width: 10),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        garden.gardenName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Garden ID: ${garden.gardenId}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(width: 6),
+
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Material(
+                    color: Colors.white.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
                     child: IconButton(
+                      padding: EdgeInsets.zero,
                       icon: const Icon(
                         Icons.arrow_forward_ios_rounded,
                         color: Colors.white,
-                        size: 16,
+                        size: 15,
                       ),
                       onPressed: () {
                         _showGardenDetails(garden);
@@ -719,75 +785,75 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                       tooltip: 'Show Details',
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
-            // ---------------------------------------
-            // Dashboard Content
-            // ---------------------------------------
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                children: [
-                  // ---------------------------------
-                  // Financial Cards
-                  // ---------------------------------
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final wide = constraints.maxWidth >= 700;
+          // -----------------------------------------
+          // Dashboard Content
+          // -----------------------------------------
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                // -----------------------------------
+                // Financial Cards
+                // -----------------------------------
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final wide = constraints.maxWidth >= 700;
 
-                      if (wide) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: _buildFinancialStatusCard(
-                                profitLoss,
-                                moneyAtHand,
-                                isProfit,
-                                isMoneyPositive,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(child: _buildFinancialSummaryCard(garden)),
-                          ],
-                        );
-                      }
-
-                      return Column(
+                    if (wide) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildFinancialStatusCard(
-                            profitLoss,
-                            moneyAtHand,
-                            isProfit,
-                            isMoneyPositive,
+                          Expanded(
+                            child: _buildFinancialStatusCard(
+                              profitLoss,
+                              moneyAtHand,
+                              isProfit,
+                              isMoneyPositive,
+                            ),
                           ),
-                          const SizedBox(height: 12),
-                          _buildFinancialSummaryCard(garden),
+                          const SizedBox(width: 12),
+                          Expanded(child: _buildFinancialSummaryCard(garden)),
                         ],
                       );
-                    },
-                  ),
+                    }
 
-                  const SizedBox(height: 16),
+                    return Column(
+                      children: [
+                        _buildFinancialStatusCard(
+                          profitLoss,
+                          moneyAtHand,
+                          isProfit,
+                          isMoneyPositive,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildFinancialSummaryCard(garden),
+                      ],
+                    );
+                  },
+                ),
 
-                  // ---------------------------------
-                  // Garden Owners Heading
-                  // ---------------------------------
-                  _buildGardenOwnersHeading(garden),
+                const SizedBox(height: 16),
 
-                  const SizedBox(height: 12),
+                // -----------------------------------
+                // Owners Heading
+                // -----------------------------------
+                _buildGardenOwnersHeading(garden),
 
-                  // ---------------------------------
-                  // Garden Owners Grid
-                  // ---------------------------------
-                  _buildGardenOwners(garden),
-                ],
-              ),
+                const SizedBox(height: 12),
+
+                // -----------------------------------
+                // Owners
+                // -----------------------------------
+                _buildGardenOwners(garden),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -824,7 +890,6 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Heading
           Row(
             children: [
               Container(
@@ -843,6 +908,8 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               Expanded(
                 child: Text(
                   'Financial Status',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Colors.blue.shade900,
                     fontSize: 15,
@@ -855,7 +922,6 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
 
           const SizedBox(height: 10),
 
-          // Chart
           Container(
             height: 190,
             padding: const EdgeInsets.fromLTRB(3, 8, 8, 0),
@@ -920,7 +986,6 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Heading
           Row(
             children: [
               Container(
@@ -939,6 +1004,8 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               Expanded(
                 child: Text(
                   'Financial Summary',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Colors.orange.shade900,
                     fontSize: 15,
@@ -986,7 +1053,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
   Widget _buildGardenOwnersHeading(DashboardGarden garden) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.teal.shade300, Colors.cyan.shade300],
@@ -1016,10 +1083,14 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               size: 20,
             ),
           ),
+
           const SizedBox(width: 9),
+
           const Expanded(
             child: Text(
               'Garden Owners',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -1027,14 +1098,19 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               ),
             ),
           ),
+
+          const SizedBox(width: 8),
+
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            constraints: const BoxConstraints(minWidth: 30),
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.16),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               '${garden.owners.length}',
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,
@@ -1073,22 +1149,28 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
         minY: -chartMax,
         maxY: chartMax,
         alignment: BarChartAlignment.spaceAround,
+
         gridData: FlGridData(
           show: true,
           drawVerticalLine: false,
           horizontalInterval: chartMax > 1000 ? chartMax / 4 : null,
         ),
+
         borderData: FlBorderData(show: false),
+
         extraLinesData: ExtraLinesData(
           horizontalLines: [HorizontalLine(y: 0, strokeWidth: 2)],
         ),
+
         titlesData: FlTitlesData(
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
+
           rightTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
+
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -1109,6 +1191,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               },
             ),
           ),
+
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -1120,6 +1203,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                       padding: EdgeInsets.only(top: 6),
                       child: Text(
                         'Profit / Loss',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
@@ -1132,6 +1216,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                       padding: EdgeInsets.only(top: 6),
                       child: Text(
                         'Money at Hand',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
@@ -1146,6 +1231,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
             ),
           ),
         ),
+
         barGroups: [
           BarChartGroupData(
             x: 0,
@@ -1160,6 +1246,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               ),
             ],
           ),
+
           BarChartGroupData(
             x: 1,
             barRods: [
@@ -1193,7 +1280,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
     required Color valueColor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11),
         color: valueColor.withOpacity(0.08),
@@ -1209,20 +1296,31 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
             ),
             child: Icon(icon, color: valueColor, size: 18),
           ),
+
           const SizedBox(width: 8),
+
           Expanded(
             child: Text(
               label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
+
           const SizedBox(width: 6),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: valueColor,
+
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: valueColor,
+              ),
             ),
           ),
         ],
@@ -1237,7 +1335,7 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
   Widget _buildSummaryRow(IconData icon, String label, double amount) {
     return Container(
       margin: const EdgeInsets.only(bottom: 7),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.72),
         borderRadius: BorderRadius.circular(10),
@@ -1253,7 +1351,9 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
             ),
             child: Icon(icon, color: Colors.orange.shade800, size: 16),
           ),
+
           const SizedBox(width: 8),
+
           Expanded(
             child: Text(
               label,
@@ -1266,13 +1366,20 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               ),
             ),
           ),
+
           const SizedBox(width: 6),
-          Text(
-            _money(amount),
-            style: TextStyle(
-              color: Colors.grey.shade900,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+
+          Flexible(
+            child: Text(
+              _money(amount),
+              textAlign: TextAlign.right,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.grey.shade900,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -1292,7 +1399,9 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
         decoration: BoxDecoration(
           color: Colors.grey.shade50,
           borderRadius: BorderRadius.circular(13),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
         ),
         child: Row(
           children: [
@@ -1302,11 +1411,15 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
               size: 22,
             ),
             const SizedBox(width: 10),
-            Text(
-              'No owners found.',
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 13,
+            Expanded(
+              child: Text(
+                'No owners found.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 13,
+                ),
               ),
             ),
           ],
@@ -1316,34 +1429,87 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        int crossAxisCount;
+        final width = constraints.maxWidth;
 
-        if (constraints.maxWidth >= 1050) {
-          crossAxisCount = 4;
-        } else if (constraints.maxWidth >= 720) {
-          crossAxisCount = 3;
-        } else {
-          crossAxisCount = 2;
+        // ---------------------------------------------
+        // Very narrow phone
+        // ---------------------------------------------
+        if (width < 430) {
+          return Column(
+            children: garden.owners.map((owner) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: _buildOwnerCard(
+                    garden,
+                    owner,
+                  ),
+                ),
+              );
+            }).toList(),
+          );
         }
 
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: garden.owners.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
+        // ---------------------------------------------
+        // Phone / small tablet
+        // ---------------------------------------------
+        if (width < 720) {
+          final cardWidth = (width - 10) / 2;
 
-            // Give the owner card enough vertical space.
-            mainAxisExtent: 155,
-          ),
-          itemBuilder: (context, index) {
-            return _buildOwnerCard(
-              garden,
-              garden.owners[index],
+          return Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: garden.owners.map((owner) {
+              return SizedBox(
+                width: cardWidth,
+                child: _buildOwnerCard(
+                  garden,
+                  owner,
+                ),
+              );
+            }).toList(),
+          );
+        }
+
+        // ---------------------------------------------
+        // Tablet
+        // ---------------------------------------------
+        if (width < 1050) {
+          final cardWidth = (width - 20) / 3;
+
+          return Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: garden.owners.map((owner) {
+              return SizedBox(
+                width: cardWidth,
+                child: _buildOwnerCard(
+                  garden,
+                  owner,
+                ),
+              );
+            }).toList(),
+          );
+        }
+
+        // ---------------------------------------------
+        // Desktop / Wide screen
+        // ---------------------------------------------
+        final cardWidth = (width - 30) / 4;
+
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: garden.owners.map((owner) {
+            return SizedBox(
+              width: cardWidth,
+              child: _buildOwnerCard(
+                garden,
+                owner,
+              ),
             );
-          },
+          }).toList(),
         );
       },
     );
@@ -1375,10 +1541,11 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
         ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // -----------------------------------------
           // Photo + Status
+          // -----------------------------------------
           Row(
             children: [
               Container(
@@ -1387,15 +1554,9 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.teal.shade200,
-                      Colors.cyan.shade100,
-                    ],
+                    colors: [Colors.teal.shade200, Colors.cyan.shade100],
                   ),
-                  border: Border.all(
-                    color: Colors.teal.shade300,
-                    width: 2,
-                  ),
+                  border: Border.all(color: Colors.teal.shade300, width: 2),
                 ),
                 child: ClipOval(
                   child: CircleAvatar(
@@ -1403,15 +1564,15 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                     backgroundColor: Colors.teal.shade50,
                     backgroundImage: owner.ownerPhoto != null
                         ? NetworkImage(
-                      '${ApiConfig.baseUrl}/${owner.ownerPhoto}',
-                    )
+                            '${ApiConfig.baseUrl}/${owner.ownerPhoto}',
+                          )
                         : null,
                     child: owner.ownerPhoto == null
                         ? Icon(
-                      Icons.person_rounded,
-                      color: Colors.teal.shade700,
-                      size: 30,
-                    )
+                            Icons.person_rounded,
+                            color: Colors.teal.shade700,
+                            size: 30,
+                          )
                         : null,
                   ),
                 ),
@@ -1436,7 +1597,9 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
 
           const SizedBox(height: 7),
 
+          // -----------------------------------------
           // Owner Name
+          // -----------------------------------------
           Text(
             owner.ownerName,
             maxLines: 1,
@@ -1450,22 +1613,19 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
 
           const SizedBox(height: 2),
 
+          // -----------------------------------------
           // Owner ID
+          // -----------------------------------------
           Row(
             children: [
-              Icon(
-                Icons.badge_rounded,
-                color: Colors.grey.shade500,
-                size: 12,
-              ),
+              Icon(Icons.badge_rounded, color: Colors.grey.shade500, size: 12),
               const SizedBox(width: 3),
               Expanded(
                 child: Text(
                   'ID: ${owner.ownerId}',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 10,
-                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
                 ),
               ),
             ],
@@ -1473,19 +1633,16 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
 
           const SizedBox(height: 6),
 
+          // -----------------------------------------
           // Fund
+          // -----------------------------------------
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 7,
-              vertical: 6,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.teal.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.teal.shade100,
-              ),
+              border: Border.all(color: Colors.teal.shade100),
             ),
             child: Row(
               children: [
@@ -1498,6 +1655,8 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                 Expanded(
                   child: Text(
                     'Funded',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.teal.shade700,
                       fontSize: 10,
@@ -1505,12 +1664,17 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
                     ),
                   ),
                 ),
-                Text(
-                  _money(ownerFund),
-                  style: TextStyle(
-                    color: Colors.teal.shade800,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Text(
+                    _money(ownerFund),
+                    textAlign: TextAlign.right,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.teal.shade800,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -1531,11 +1695,15 @@ class _GeneralDashboardScreenState extends State<GeneralDashboardScreen> {
         .fold<double>(0.0, (total, fund) => total + fund.fundAmount);
   }
 
+  // -------------------------------------------------
+  // Owner Photo URL
+  // -------------------------------------------------
+
   String _getOwnerPhotoUrl(String? photo) {
     if (photo == null || photo.isEmpty) {
       return '';
     }
 
-    return 'http://localhost/gardenfluttermysql${photo.replaceFirst('/..', '')}';
+    return '${ApiConfig.baseUrl}${photo.replaceFirst('/..', '')}';
   }
 }

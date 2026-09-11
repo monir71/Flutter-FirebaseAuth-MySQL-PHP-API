@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:nhgarden/config/api_config.dart';
 
 class FirebaseApiService {
   //Change this to your actual PHP API URL
-  static const String baseUrl = "http://localhost/gardenfluttermysql/api";
+  static const String baseUrl = ApiConfig.baseApiUrl;
 
   Future<void> syncUser({
     required String idToken,

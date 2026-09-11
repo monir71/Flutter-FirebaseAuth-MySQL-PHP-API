@@ -61,9 +61,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
         _isLoading = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Unable to load data: $e')));
+      _showMessage('Unable to load data: $e');
     }
   }
 
@@ -139,15 +137,29 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
       text: fund.fundAmount.toString(),
     );
 
-    Owner? selectedOwner = _owners.firstWhere(
-      (owner) => owner.ownerId == fund.ownerId,
-      orElse: () => _owners.first,
-    );
+    Owner? selectedOwner;
 
-    Garden? selectedGarden = _gardens.firstWhere(
-      (garden) => garden.gardenId == fund.gardenId,
-      orElse: () => _gardens.first,
-    );
+    if (_owners.isNotEmpty) {
+      final matchingOwners = _owners.where(
+        (owner) => owner.ownerId == fund.ownerId,
+      );
+
+      selectedOwner = matchingOwners.isNotEmpty
+          ? matchingOwners.first
+          : _owners.first;
+    }
+
+    Garden? selectedGarden;
+
+    if (_gardens.isNotEmpty) {
+      final matchingGardens = _gardens.where(
+        (garden) => garden.gardenId == fund.gardenId,
+      );
+
+      selectedGarden = matchingGardens.isNotEmpty
+          ? matchingGardens.first
+          : _gardens.first;
+    }
 
     DateTime selectedDate = DateTime.tryParse(fund.fundDate) ?? DateTime.now();
 
@@ -157,16 +169,21 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 24,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              titlePadding: const EdgeInsets.fromLTRB(24, 22, 24, 8),
-              contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
-              actionsPadding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
+              titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+              contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+              actionsPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+
               title: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(9),
                     decoration: BoxDecoration(
                       color: Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(12),
@@ -176,85 +193,113 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                       color: Colors.blue.shade700,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Edit Fund',
-                    style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Edit Fund',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    DropdownButtonFormField<Owner>(
-                      value: selectedOwner,
-                      decoration: _inputDecoration(
-                        label: 'Owner',
-                        icon: Icons.person_rounded,
-                      ),
-                      items: _owners.map((owner) {
-                        return DropdownMenuItem<Owner>(
-                          value: owner,
-                          child: Text(owner.ownerName),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setDialogState(() {
-                          selectedOwner = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 14),
-                    DropdownButtonFormField<Garden>(
-                      value: selectedGarden,
-                      decoration: _inputDecoration(
-                        label: 'Garden',
-                        icon: Icons.agriculture_rounded,
-                      ),
-                      items: _gardens.map((garden) {
-                        return DropdownMenuItem<Garden>(
-                          value: garden,
-                          child: Text(garden.gardenName),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setDialogState(() {
-                          selectedGarden = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: amountController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: _inputDecoration(
-                        label: 'Fund Amount',
-                        icon: Icons.payments_rounded,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    _buildDialogDateSelector(
-                      selectedDate: selectedDate,
-                      onPressed: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: selectedDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
 
-                        if (date != null) {
+              content: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 500,
+                  maxHeight: 430,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      DropdownButtonFormField<Owner>(
+                        value: selectedOwner,
+                        isExpanded: true,
+                        decoration: _inputDecoration(
+                          label: 'Owner',
+                          icon: Icons.person_rounded,
+                        ),
+                        items: _owners.map((owner) {
+                          return DropdownMenuItem<Owner>(
+                            value: owner,
+                            child: Text(
+                              owner.ownerName,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
                           setDialogState(() {
-                            selectedDate = date;
+                            selectedOwner = value;
                           });
-                        }
-                      },
-                    ),
-                  ],
+                        },
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      DropdownButtonFormField<Garden>(
+                        value: selectedGarden,
+                        isExpanded: true,
+                        decoration: _inputDecoration(
+                          label: 'Garden',
+                          icon: Icons.agriculture_rounded,
+                        ),
+                        items: _gardens.map((garden) {
+                          return DropdownMenuItem<Garden>(
+                            value: garden,
+                            child: Text(
+                              garden.gardenName,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setDialogState(() {
+                            selectedGarden = value;
+                          });
+                        },
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      TextField(
+                        controller: amountController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: _inputDecoration(
+                          label: 'Fund Amount',
+                          icon: Icons.payments_rounded,
+                          prefixText: '৳ ',
+                        ),
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      _buildDialogDateSelector(
+                        selectedDate: selectedDate,
+                        onPressed: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+
+                          if (date != null) {
+                            setDialogState(() {
+                              selectedDate = date;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
+
               actions: [
                 TextButton(
                   onPressed: () {
@@ -268,6 +313,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                     ),
                   ),
                 ),
+
                 ElevatedButton.icon(
                   onPressed: () async {
                     final amount = double.tryParse(
@@ -353,30 +399,39 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          titlePadding: const EdgeInsets.fromLTRB(24, 22, 24, 8),
-          contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
-          actionsPadding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
+          titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+          contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+
           title: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
                   color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(Icons.delete_rounded, color: Colors.red.shade700),
               ),
-              const SizedBox(width: 12),
-              const Text(
-                'Delete Fund',
-                style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Delete Fund',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
+
           content: Container(
+            constraints: const BoxConstraints(maxWidth: 500),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
@@ -391,19 +446,25 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                   'Are you sure you want to delete this fund?',
                   style: TextStyle(color: Colors.grey.shade800, fontSize: 15),
                 ),
+
                 const SizedBox(height: 12),
+
                 _buildDeleteInfoRow(
                   Icons.payments_rounded,
                   'Amount',
                   '৳${fund.fundAmount.toStringAsFixed(2)}',
                 ),
+
                 const SizedBox(height: 6),
+
                 _buildDeleteInfoRow(
                   Icons.person_rounded,
                   'Owner',
                   fund.ownerName,
                 ),
+
                 const SizedBox(height: 6),
+
                 _buildDeleteInfoRow(
                   Icons.agriculture_rounded,
                   'Garden',
@@ -412,6 +473,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
               ],
             ),
           ),
+
           actions: [
             TextButton(
               onPressed: () {
@@ -425,6 +487,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                 ),
               ),
             ),
+
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pop(context, true);
@@ -494,6 +557,8 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
   // -------------------------------------------------
 
   void _showMessage(String message) {
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
@@ -524,23 +589,84 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
       backgroundColor: const Color(0xFFF6F8FB),
       body: _isLoading
           ? _buildLoadingState()
-          : Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildAddFundCard(),
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmallScreen = constraints.maxWidth < 700;
 
-                  const SizedBox(height: 28),
+                if (isSmallScreen) {
+                  return _buildSmallScreenLayout();
+                }
 
-                  _buildFundListHeader(),
-
-                  const SizedBox(height: 12),
-
-                  Expanded(child: _buildFundList()),
-                ],
-              ),
+                return _buildDesktopLayout();
+              },
             ),
+    );
+  }
+
+  // -------------------------------------------------
+  // Desktop / Web Layout
+  // -------------------------------------------------
+
+  Widget _buildDesktopLayout() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAddFundCard(),
+
+          const SizedBox(height: 24),
+
+          _buildFundListHeader(),
+
+          const SizedBox(height: 12),
+
+          Expanded(child: _buildFundList()),
+        ],
+      ),
+    );
+  }
+
+  // -------------------------------------------------
+  // Small Screen Layout
+  // -------------------------------------------------
+
+  Widget _buildSmallScreenLayout() {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAddFundCard(),
+
+          const SizedBox(height: 22),
+
+          _buildFundListHeader(),
+
+          const SizedBox(height: 12),
+
+          _buildSmallScreenFundList(),
+
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+
+  // -------------------------------------------------
+  // Small Screen Fund List
+  // -------------------------------------------------
+
+  Widget _buildSmallScreenFundList() {
+    if (_funds.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return Column(
+      children: _funds.map((fund) {
+        return _buildFundCard(fund);
+      }).toList(),
     );
   }
 
@@ -569,7 +695,9 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
               size: 23,
             ),
           ),
+
           const SizedBox(width: 12),
+
           const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -621,7 +749,9 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
               ),
             ),
           ),
+
           const SizedBox(height: 14),
+
           Text(
             'Loading funds...',
             style: TextStyle(
@@ -673,7 +803,9 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                     size: 26,
                   ),
                 ),
+
                 const SizedBox(width: 12),
+
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -689,6 +821,8 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                       SizedBox(height: 3),
                       Text(
                         'Record a new garden fund contribution',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ],
@@ -704,6 +838,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
               children: [
                 DropdownButtonFormField<Owner>(
                   value: _selectedOwner,
+                  isExpanded: true,
                   decoration: _inputDecoration(
                     label: 'Owner',
                     icon: Icons.person_rounded,
@@ -711,7 +846,10 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                   items: _owners.map((owner) {
                     return DropdownMenuItem<Owner>(
                       value: owner,
-                      child: Text(owner.ownerName),
+                      child: Text(
+                        owner.ownerName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -725,6 +863,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
 
                 DropdownButtonFormField<Garden>(
                   value: _selectedGarden,
+                  isExpanded: true,
                   decoration: _inputDecoration(
                     label: 'Garden',
                     icon: Icons.agriculture_rounded,
@@ -732,7 +871,10 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                   items: _gardens.map((garden) {
                     return DropdownMenuItem<Garden>(
                       value: garden,
-                      child: Text(garden.gardenName),
+                      child: Text(
+                        garden.gardenName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -823,7 +965,9 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
             size: 22,
           ),
         ),
+
         const SizedBox(width: 12),
+
         const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -835,12 +979,18 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
               SizedBox(height: 2),
               Text(
                 'All recorded garden fund contributions',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ],
           ),
         ),
+
+        const SizedBox(width: 8),
+
         Container(
+          constraints: const BoxConstraints(minWidth: 38),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
             color: Colors.blue.shade50,
@@ -848,6 +998,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
           ),
           child: Text(
             '${_funds.length}',
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.blue.shade700,
               fontWeight: FontWeight.bold,
@@ -860,7 +1011,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
   }
 
   // -------------------------------------------------
-  // Fund List
+  // Desktop Fund List
   // -------------------------------------------------
 
   Widget _buildFundList() {
@@ -875,9 +1026,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
         padding: const EdgeInsets.only(bottom: 20),
         itemCount: _funds.length,
         itemBuilder: (context, index) {
-          final fund = _funds[index];
-
-          return _buildFundCard(fund);
+          return _buildFundCard(_funds[index]);
         },
       ),
     );
@@ -900,8 +1049,8 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 68,
-              height: 68,
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Colors.blue.shade700, Colors.blue.shade500],
@@ -916,14 +1065,14 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                   const Icon(
                     Icons.account_balance_wallet_rounded,
                     color: Colors.white,
-                    size: 22,
+                    size: 21,
                   ),
                   const SizedBox(height: 3),
                   Text(
                     '#${fund.fundId}',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -931,7 +1080,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
               ),
             ),
 
-            const SizedBox(width: 14),
+            const SizedBox(width: 11),
 
             Expanded(
               child: Column(
@@ -939,14 +1088,16 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                 children: [
                   Text(
                     '৳${fund.fundAmount.toStringAsFixed(2)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.blue.shade800,
-                      fontSize: 20,
+                      fontSize: 19,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 7),
 
                   _buildFundInfoRow(
                     Icons.person_outline_rounded,
@@ -970,7 +1121,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
               ),
             ),
 
-            const SizedBox(width: 6),
+            const SizedBox(width: 5),
 
             Column(
               children: [
@@ -982,7 +1133,9 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                     _editFund(fund);
                   },
                 ),
+
                 const SizedBox(height: 7),
+
                 _buildActionButton(
                   icon: Icons.delete_rounded,
                   color: Colors.red.shade600,
@@ -1007,7 +1160,9 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
     return Row(
       children: [
         Icon(icon, size: 16, color: Colors.grey.shade600),
+
         const SizedBox(width: 7),
+
         Expanded(
           child: Text(
             text,
@@ -1039,8 +1194,8 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
           borderRadius: BorderRadius.circular(10),
           onTap: onPressed,
           child: Padding(
-            padding: const EdgeInsets.all(9),
-            child: Icon(icon, color: color, size: 19),
+            padding: const EdgeInsets.all(8),
+            child: Icon(icon, color: color, size: 18),
           ),
         ),
       ),
@@ -1076,12 +1231,16 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                 size: 40,
               ),
             ),
+
             const SizedBox(height: 15),
+
             const Text(
               'No funds found',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+
             const SizedBox(height: 6),
+
             Text(
               'Add a fund contribution using the form above.',
               textAlign: TextAlign.center,
@@ -1112,7 +1271,9 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
             color: Colors.blue.shade700,
             size: 22,
           ),
+
           const SizedBox(width: 10),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1121,6 +1282,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
                   'Fund Date',
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                 ),
+
                 Text(
                   _formatDate(_selectedDate),
                   style: const TextStyle(
@@ -1131,6 +1293,7 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
               ],
             ),
           ),
+
           TextButton.icon(
             onPressed: _selectDate,
             icon: const Icon(Icons.edit_calendar_rounded, size: 18),
@@ -1164,13 +1327,16 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
             color: Colors.blue.shade700,
             size: 21,
           ),
+
           const SizedBox(width: 10),
+
           Expanded(
             child: Text(
               _formatDate(selectedDate),
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
+
           TextButton(
             onPressed: onPressed,
             child: Text(
@@ -1225,14 +1391,19 @@ class _FundManagementScreenState extends State<FundManagementScreen> {
     return Row(
       children: [
         Icon(icon, size: 17, color: Colors.grey.shade600),
+
         const SizedBox(width: 8),
+
         Text(
           '$label: ',
           style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
         ),
+
         Expanded(
           child: Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
         ),

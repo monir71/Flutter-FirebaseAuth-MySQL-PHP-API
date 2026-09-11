@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:nhgarden/config/api_config.dart';
 import '../models/income.dart';
 
 class IncomeService {
-  static const String baseUrl =
-      'http://localhost/gardenfluttermysql/api';
+  static const String baseUrl = ApiConfig.baseApiUrl;
 
   // -------------------------------------------------
   // Get Firebase ID Token

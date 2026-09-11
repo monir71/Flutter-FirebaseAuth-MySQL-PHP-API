@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nhgarden/firebase_options.dart';
 import 'package:nhgarden/screens/admin/admin_dashboard_screen.dart';
@@ -10,6 +12,8 @@ import 'package:window_manager/window_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Guard window_manager so it only runs on Desktop platforms
+  if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
     await windowManager.ensureInitialized();
     WindowOptions windowOptions = const WindowOptions(
       size: Size(1200, 800),
@@ -23,10 +27,12 @@ void main() async {
       await windowManager.show();
       await windowManager.focus();
     });
+  }
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(const MyApp());
 }
 
